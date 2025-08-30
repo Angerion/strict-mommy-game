@@ -6,7 +6,7 @@ import { writable } from 'svelte/store';
   export const gameWon = writable(false);
   export const isDown = writable(false);
   export const isReviving = writable(false);
-  export const lives = writable(3);
+  export const lives = writable(5);
   export const npcStatus = writable('');
   export const bossAwake = writable(false);
   export const bossEncounterActive = writable(false);
