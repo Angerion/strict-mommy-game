@@ -49,6 +49,32 @@ body {
     margin-bottom: 20px;
 }
 
+.game-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#play-pause-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    border: none;
+    color: white;
+    background-color: #4CAF50; /* Green */
+    transition: background-color 0.3s;
+}
+
+#play-pause-btn.paused {
+    background-color: #ffc107; /* Yellow */
+}
+
 .meter {
     margin-bottom: 15px;
     display: flex;

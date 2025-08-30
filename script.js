@@ -73,7 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function startGame() {
         gameRunning = true;
-        playPauseBtn.textContent = 'Pause';
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playPauseBtn.classList.add('paused');
         gameInterval = setInterval(() => {
             gameTime++;
             gameTimeElement.textContent = formatTime(gameTime);
@@ -84,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function pauseGame() {
         gameRunning = false;
-        playPauseBtn.textContent = 'Play';
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playPauseBtn.classList.remove('paused');
         clearInterval(gameInterval);
         clearTimeout(doorbellTimeout);
     }
