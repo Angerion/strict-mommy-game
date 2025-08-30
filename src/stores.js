@@ -26,14 +26,14 @@ import { writable } from 'svelte/store';
       name: "Thirst",
       value: 100,
       rate: 1,
-      replenish: 40,
+      replenish: 45,
       color: "linear-gradient(to right, #2196F3, #03A9F4)",
     },
     {
       id: "cleanliness",
       name: "Cleanliness",
       value: 100,
-      rate: 0.2,
+      rate: 0.4,
       replenish: 100,
       color: "linear-gradient(to right, #795548, #A1887F)",
     },
@@ -41,7 +41,7 @@ import { writable } from 'svelte/store';
       id: "oxygen",
       name: "Oxygen",
       value: 100,
-      rate: 0.1,
+      rate: 0.3,
       replenish: 100,
       color: "linear-gradient(to right, #B0C4DE, #87CEEB)",
     },
@@ -57,8 +57,8 @@ import { writable } from 'svelte/store';
 
   // General game settings
   export const settings = writable({
-    startingLives: 3,
-    doorbellMinTime: 45,
-    doorbellMaxTime: 80,
-    gameLengthMinutes: 6
+    startingLives: 5,
+    doorbellMinTime: 60,
+    doorbellMaxTime: 180,
+    gameLengthMinutes: 15
   });

@@ -53,6 +53,10 @@
 <div class="admin-settings">
     <fieldset>
         <legend>General Settings</legend>
+          <label>
+            Game Length (minutes):
+            <input type="number" bind:value={$settings.gameLengthMinutes}>
+        </label>
         <div class="setting">
             <label for="starting-lives">Starting Lives:</label>
             <input type="number" id="starting-lives" bind:value={$settings.startingLives} min="1" max="6">
@@ -70,20 +74,12 @@
     <fieldset>
         <legend>Game Rules</legend>
         <label>
-            Starting Lives:
-            <input type="number" bind:value={$settings.startingLives}>
-        </label>
-        <label>
             Min Time to Encounter (s):
             <input type="number" bind:value={$settings.doorbellMinTime}>
         </label>
         <label>
             Max Time to Encounter (s):
             <input type="number" bind:value={$settings.doorbellMaxTime}>
-        </label>
-        <label>
-            Game Length (minutes):
-            <input type="number" bind:value={$settings.gameLengthMinutes}>
         </label>
     </fieldset>
 

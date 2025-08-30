@@ -22,9 +22,8 @@
     });
 
     const displayHour = derived(inGameHour, $inGameHour => {
-        if ($inGameHour >= 6) return '6:00 AM';
-        if ($inGameHour === 0) return '12:00 AM';
-        return `${$inGameHour}:00 AM`;
+        if ($inGameHour >= 6) return '6 AM';
+        return `${$inGameHour} AM`;
     });
 
     let previousHour = 0;
@@ -40,6 +39,11 @@
         } else if (hour > previousHour) {
             clockSound.play();
             previousHour = hour;
+
+            // The hourly chime now also wakes the boss
+            clearTimeout(doorbellTimeout); // Cancel any pending random doorbell
+            bossAwake.set(true);
+            npcStatus.set('The turning of the hour has woken the boss!');
         }
     });
     // --- End New Clock Logic ---
