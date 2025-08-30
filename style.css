@@ -1,0 +1,191 @@
+body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    margin: 20px;
+}
+
+.wrapper {
+    max-width: 600px;
+    margin: auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.tabs {
+    overflow: hidden;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+}
+
+.tab-link:hover {
+    background-color: #ddd;
+}
+
+.tab-link.active {
+    background-color: #ccc;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px 12px;
+    border-top: none;
+}
+
+.game-controls, .meters, .admin-settings {
+    margin-bottom: 20px;
+}
+
+.meter {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.meter-right {
+    display: flex;
+    align-items: center;
+    width: 80%;
+}
+
+progress {
+    width: 100%;
+    height: 25px;
+    margin-right: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #a0a0a0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #e0e0e0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+progress::-webkit-progress-value {
+    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+}
+
+#hunger::-webkit-progress-value {
+    background-image:
+	   -webkit-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #ffc107, #ffeb3b);
+}
+#thirst::-webkit-progress-value {
+    background-image:
+	   -webkit-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #2196F3, #03A9F4);
+}
+#cleanliness::-webkit-progress-value {
+    background-image:
+	   -webkit-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #795548, #A1887F);
+}
+#oxygen::-webkit-progress-value {
+    background-image:
+	   -webkit-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #B0C4DE, #87CEEB);
+}
+
+#hunger::-moz-progress-bar {
+    background-image:
+	   -moz-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -moz-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -moz-linear-gradient(left, #ffc107, #ffeb3b);
+}
+#thirst::-moz-progress-bar {
+    background-image:
+	   -moz-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -moz-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -moz-linear-gradient(left, #2196F3, #03A9F4);
+}
+#cleanliness::-moz-progress-bar {
+    background-image:
+	   -moz-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -moz-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -moz-linear-gradient(left, #795548, #A1887F);
+}
+#oxygen::-moz-progress-bar {
+    background-image:
+	   -moz-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0, 0, 0, .1) 66%, transparent 66%),
+	   -moz-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -moz-linear-gradient(left, #B0C4DE, #87CEEB);
+}
+
+.setting {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    width: 100px;
+    padding: 5px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#npc-status {
+    margin-top: 20px;
+    font-weight: bold;
+    color: red;
+}

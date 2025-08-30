@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strict Mommy Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="tabs">
+            <button class="tab-link active" onclick="openTab(event, 'Game')">Game</button>
+            <button class="tab-link" onclick="openTab(event, 'Admin')">Game Admin</button>
+        </div>
+
+        <div id="Game" class="tab-content" style="display: block;">
+            <h1>Game Interface</h1>
+            <div class="game-controls">
+                <button id="play-pause-btn">Play</button>
+                <p>Game Time: <span id="game-time">00:00:00</span></p>
+            </div>
+            <div class="meters">
+                <div class="meter">
+                    <label for="hunger">Hunger:</label>
+                    <div class="meter-right">
+                        <progress id="hunger" value="100" max="100"></progress>
+                        <button id="hunger-btn">Replenish</button>
+                    </div>
+                </div>
+                <div class="meter">
+                    <label for="thirst">Thirst:</label>
+                    <div class="meter-right">
+                        <progress id="thirst" value="100" max="100"></progress>
+                        <button id="thirst-btn">Replenish</button>
+                    </div>
+                </div>
+                <div class="meter">
+                    <label for="cleanliness">Cleanliness:</label>
+                    <div class="meter-right">
+                        <progress id="cleanliness" value="100" max="100"></progress>
+                        <button id="cleanliness-btn">Replenish</button>
+                    </div>
+                </div>
+                <div class="meter">
+                    <label for="oxygen">Oxygen:</label>
+                    <div class="meter-right">
+                        <progress id="oxygen" value="100" max="100"></progress>
+                        <button id="oxygen-btn">Replenish</button>
+                    </div>
+                </div>
+            </div>
+            <div id="npc-status"></div>
+        </div>
+
+        <div id="Admin" class="tab-content">
+            <h1>Game Admin</h1>
+            <div class="admin-settings">
+                <div class="setting">
+                    <label for="hunger-rate">Hunger Rate (per second):</label>
+                    <input type="number" id="hunger-rate" value="0.8">
+                </div>
+                <div class="setting">
+                    <label for="thirst-rate">Thirst Rate (per second):</label>
+                    <input type="number" id="thirst-rate" value="1">
+                </div>
+                <div class="setting">
+                    <label for="cleanliness-rate">Cleanliness Rate (per second):</label>
+                    <input type="number" id="cleanliness-rate" value="0.2">
+                </div>
+                <div class="setting">
+                    <label for="oxygen-rate">Oxygen Rate (per second):</label>
+                    <input type="number" id="oxygen-rate" value="0.1">
+                </div>
+                <div class="setting">
+                    <label for="hunger-replenish">Hunger Replenish Amount (%):</label>
+                    <input type="number" id="hunger-replenish" value="65">
+                </div>
+                <div class="setting">
+                    <label for="thirst-replenish">Thirst Replenish Amount (%):</label>
+                    <input type="number" id="thirst-replenish" value="40">
+                </div>
+                <div class="setting">
+                    <label for="cleanliness-replenish">Cleanliness Replenish Amount (%):</label>
+                    <input type="number" id="cleanliness-replenish" value="100">
+                </div>
+                <div class="setting">
+                    <label for="oxygen-replenish">Oxygen Replenish Amount (%):</label>
+                    <input type="number" id="oxygen-replenish" value="100">
+                </div>
+                <div class="setting">
+                    <label for="doorbell-min-time">Min Time for Doorbell (seconds):</label>
+                    <input type="number" id="doorbell-min-time" value="45">
+                </div>
+                <div class="setting">
+                    <label for="doorbell-max-time">Max Time for Doorbell (seconds):</label>
+                    <input type="number" id="doorbell-max-time" value="100">
+                </div>
+                <button id="apply-settings-btn">Apply Settings</button>
+            </div>
+        </div>
+
+        <audio id="wakeup-sound" src="bad-guy-wakeup.mp3" preload="auto"></audio>
+
+        <script src="script.js"></script>
+    </div>
+</body>
+</html>
