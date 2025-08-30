@@ -1,0 +1,249 @@
+body {
+    font-family: sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    margin: 20px;
+}
+
+.wrapper {
+    max-width: 600px;
+    margin: auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+
+.tab-link {
+    background-color: inherit;
+    flex: 1;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+    text-align: center;
+}
+
+.tab-link:hover {
+    background-color: #ddd;
+}
+
+.tab-link.active {
+    background-color: #ccc;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px 12px;
+    border-top: none;
+}
+
+.game-controls, .meters, .admin-settings {
+    margin-bottom: 20px;
+}
+
+.game-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.game-stats {
+    text-align: center;
+}
+
+#lives-container {
+    font-size: 24px;
+    color: red;
+}
+
+#lives-container .fa-heart {
+    margin: 0 3px;
+}
+
+#play-pause-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    border: none;
+    color: white;
+    background-color: #4CAF50; /* Green */
+    transition: background-color 0.3s;
+}
+
+#play-pause-btn.paused {
+    background-color: #ffc107; /* Yellow */
+}
+
+.meter {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.meter:hover {
+    transform: scale(1.02);
+}
+
+.meter:active {
+    transform: scale(0.99);
+}
+
+.progress-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.progress-label {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #000;
+    font-weight: bold;
+    text-shadow: 0 0 2px #fff;
+    pointer-events: none;
+}
+
+progress {
+    width: 100%;
+    height: 35px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #a0a0a0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #e0e0e0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+progress::-webkit-progress-value {
+    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+}
+
+progress::-webkit-progress-value {
+    background-image: var(--progress-color);
+}
+
+progress::-moz-progress-bar {
+    background-image: var(--progress-color);
+}
+
+.admin-settings fieldset {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.admin-settings legend {
+    font-weight: bold;
+    padding: 0 10px;
+}
+
+.meter-setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.meter-setting:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.meter-name {
+    font-weight: 500;
+}
+
+.meter-controls {
+    display: flex;
+    align-items: center;
+}
+
+.meter-inputs {
+    display: flex;
+    flex-direction: column;
+}
+
+.meter-inputs label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.meter-inputs label:not(:last-child) {
+    margin-bottom: 5px;
+}
+
+.meter-inputs input {
+    width: 70px;
+    margin-left: 10px;
+}
+
+.remove-btn {
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.setting {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="number"] {
+    width: 100px;
+    padding: 5px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#npc-status {
+    margin-top: 20px;
+    font-weight: bold;
+    color: red;
+}
