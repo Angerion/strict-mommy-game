@@ -40,16 +40,6 @@
         }, 8000);
     }
 
-    function replenishMeter(meterId) {
-        meters.update(currentMeters => {
-            const meter = currentMeters.find(m => m.id === meterId);
-            if (meter) {
-                meter.value = Math.min(100, meter.value + meter.replenish);
-                replenishSound.play();
-            }
-            return currentMeters;
-        });
-    }
 
     function startGame() {
         if ($isDown || $isReviving) return;
@@ -96,13 +86,11 @@
         return `${h}:${m}:${s}`;
     }
 
-    const wakeupSound = new Audio('bad-guy-wakeup.mp3');
-    const clickSound = new Audio('button-3.mp3');
 
     function scheduleDoorbell() {
         const time = Math.random() * ($settings.doorbellMaxTime - $settings.doorbellMinTime) + $settings.doorbellMinTime;
         doorbellTimeout = setTimeout(() => {
-            wakeupSound.play();
+            doorbellSound.play();
             npcStatus.set('The bad guy is waking up!');
             setTimeout(() => {
                 npcStatus.set('');
@@ -112,7 +100,7 @@
     }
 
     function replenish(meterId) {
-        clickSound.play();
+        replenishSound.play();
         meters.update(m => {
             const meter = m.find(meter => meter.id === meterId);
             if (meter) {
