@@ -1,21 +1,21 @@
 <script>
   import { settings, lives, gameTime, gameRunning, meters } from "./stores.js";
 
-  let newMeterName = "";
+  let newMeterName = '';
   let newMeterRate = 1;
   let newMeterReplenish = 50;
-  let newMeterColor = "linear-gradient(to right, #4CAF50, #8BC34A)"; // Default to Green
+  let newMeterColor = 'linear-gradient(to right, #4CAF50, #8BC34A)'; // Default to Green
   const colorOptions = [
-    { name: "Green", value: "linear-gradient(to right, #4CAF50, #8BC34A)" },
-    { name: "Blue", value: "linear-gradient(to right, #2196F3, #03A9F4)" },
-    { name: "Yellow", value: "linear-gradient(to right, #ffc107, #ffeb3b)" },
-    { name: "Red", value: "linear-gradient(to right, #f44336, #e57373)" },
-    { name: "Purple", value: "linear-gradient(to right, #9C27B0, #BA68C8)" },
-    { name: "Brown", value: "linear-gradient(to right, #795548, #A1887F)" },
-    {
-      name: "Light Blue",
-      value: "linear-gradient(to right, #B0C4DE, #87CEEB)",
-    },
+      { name: 'Green', value: 'linear-gradient(to right, #4CAF50, #8BC34A)' },
+      { name: 'Blue', value: 'linear-gradient(to right, #2196F3, #03A9F4)' },
+      { name: 'Yellow', value: 'linear-gradient(to right, #ffc107, #ffeb3b)' },
+      { name: 'Red', value: 'linear-gradient(to right, #f44336, #e57373)' },
+      { name: 'Purple', value: 'linear-gradient(to right, #9C27B0, #BA68C8)' },
+      { name: 'Brown', value: 'linear-gradient(to right, #795548, #A1887F)' },
+      {
+          name: 'Light Blue',
+          value: 'linear-gradient(to right, #B0C4DE, #87CEEB)',
+      },
   ];
 
   function addMeter() {
@@ -99,6 +99,18 @@
     <label>
       Max Time to Encounter (s):
       <input type="number" bind:value={$settings.doorbellMaxTime} />
+    </label>
+    <label>
+      Game Length (minutes):
+      <input type="number" bind:value={$settings.gameLengthMinutes} />
+    </label>
+    <label>
+      Rustle Min %:
+      <input type="number" bind:value={$settings.rustleMinPercent} />
+    </label>
+    <label>
+      Rustle Max %:
+      <input type="number" bind:value={$settings.rustleMaxPercent} />
     </label>
   </fieldset>
 

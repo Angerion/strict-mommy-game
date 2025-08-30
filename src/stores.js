@@ -57,8 +57,10 @@ import { writable } from 'svelte/store';
 
   // General game settings
   export const settings = writable({
-    startingLives: 5,
-    doorbellMinTime: 60,
-    doorbellMaxTime: 180,
-    gameLengthMinutes: 15
+    startingLives: 3,
+    doorbellMinTime: 45,
+    doorbellMaxTime: 80,
+    gameLengthMinutes: 6,
+    rustleMinPercent: 25,
+    rustleMaxPercent: 50
   });

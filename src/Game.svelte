@@ -5,6 +5,8 @@
 
     let gameLoop;
     let doorbellTimeout;
+    let doorbellStartTime;
+    let doorbellRemainingTime;
     let encounterTimeout;
     let wasRunning = false;
     let chaseMusic; // Will hold the current chase music audio object
@@ -12,6 +14,7 @@
     const doorbellSound = new Audio('/sounds/doorbell.mp3');
     const reviveSound = new Audio('/sounds/revive.mp3');
     const clockSound = new Audio('/sounds/grandfather_clock.mp3');
+    const rustleSound = new Audio('/sounds/rustle.mp3');
 
     // --- New Clock Logic ---
     const secondsPerGameHour = derived(settings, $settings => ($settings.gameLengthMinutes * 60) / 6);
@@ -139,6 +142,35 @@
         }
     }
 
+    function rustle() {
+        if (!$gameRunning || !doorbellRemainingTime || !doorbellStartTime) return;
+
+        rustleSound.play();
+
+        // First, calculate the actual time left at this very moment
+        const elapsedSinceTimerStart = Date.now() - doorbellStartTime;
+        const actualCurrentRemainingTime = doorbellRemainingTime - elapsedSinceTimerStart;
+
+        if (actualCurrentRemainingTime <= 0) return; // Can't rustle a timer that's already due
+
+        const rustlePercent = (Math.random() * ($settings.rustleMaxPercent - $settings.rustleMinPercent) + $settings.rustleMinPercent) / 100;
+
+        const timeBefore = actualCurrentRemainingTime; // Log the correct current time
+        const timeToReduce = timeBefore * rustlePercent;
+        const newRemainingTime = timeBefore - timeToReduce;
+
+        console.log(`Rustle triggered!`);
+        console.log(`Time before: ${(timeBefore / 1000).toFixed(2)}s`);
+        console.log(`Time reduced by: ${(timeToReduce / 1000).toFixed(2)}s (${(rustlePercent * 100).toFixed(0)}%)`);
+        console.log(`New time until doorbell: ${(newRemainingTime / 1000).toFixed(2)}s`);
+
+        // Reschedule the doorbell with the new, shorter time
+        clearTimeout(doorbellTimeout);
+        doorbellRemainingTime = newRemainingTime; // This is now the new total duration
+        doorbellStartTime = Date.now(); // Reset the start time for the new timer
+        doorbellTimeout = setTimeout(triggerDoorbell, doorbellRemainingTime);
+    }
+
     function startGame() {
         if ($isDown || $isReviving || $gameWon) return;
         gameRunning.set(true);
@@ -149,17 +181,25 @@
         gameRunning.set(false);
     }
 
-    function scheduleDoorbell() {
+    function triggerDoorbell() {
+        doorbellSound.play();
+        npcStatus.set('The boss is waking up!');
+        bossAwake.set(true);
+        doorbellRemainingTime = null; // Timer has fired
+    }
+
+    function scheduleDoorbell(resumeTime = null) {
         if (doorbellTimeout) clearTimeout(doorbellTimeout);
-        const timeToDoorbell = (Math.random() * ($settings.doorbellMaxTime - $settings.doorbellMinTime) + $settings.doorbellMinTime) * 1000;
 
-        console.log(`Next doorbell in: ${timeToDoorbell / 1000}s`); // For debugging
+        // On pause/resume, resumeTime will be the updated remaining time.
+        // Otherwise, calculate a new random time.
+        const duration = resumeTime || (Math.random() * ($settings.doorbellMaxTime - $settings.doorbellMinTime) + $settings.doorbellMinTime) * 1000;
 
-        doorbellTimeout = setTimeout(() => {
-            doorbellSound.play();
-            npcStatus.set('The boss is waking up!');
-            bossAwake.set(true);
-        }, timeToDoorbell);
+        console.log(`Next doorbell in: ${(duration / 1000).toFixed(2)}s`);
+
+        doorbellStartTime = Date.now();
+        doorbellRemainingTime = duration; // Store the full duration of this timer
+        doorbellTimeout = setTimeout(triggerDoorbell, doorbellRemainingTime);
     }
 
     function resetGame() {
@@ -178,6 +218,8 @@
             chaseMusic.currentTime = 0;
         }
         clearTimeout(encounterTimeout);
+        clearTimeout(doorbellTimeout);
+        doorbellRemainingTime = null;
         meters.update(currentMeters => {
             return currentMeters.map(meter => ({ ...meter, value: 100 }));
         });
@@ -187,7 +229,10 @@
         const unsubscribeGameRunning = gameRunning.subscribe(running => {
             if (running && !$isDown && !$isReviving) {
                 if ($bossEncounterActive && chaseMusic) chaseMusic.play();
-                scheduleDoorbell();
+
+                // If resuming, use remaining time, otherwise schedule a new one
+                scheduleDoorbell(doorbellRemainingTime);
+
                 gameLoop = setInterval(() => {
                     gameTime.update(t => t + 1);
                     meters.update(currentMeters => {
@@ -216,8 +261,13 @@
             } else {
                 if ($bossEncounterActive && chaseMusic) chaseMusic.pause();
                 clearInterval(gameLoop);
-                clearTimeout(doorbellTimeout);
-                clearTimeout(encounterTimeout);
+
+                // Pause the doorbell timer
+                if (doorbellTimeout) {
+                    clearTimeout(doorbellTimeout);
+                    // Update remaining time by subtracting the time that has passed since the timer started
+                    doorbellRemainingTime -= (Date.now() - doorbellStartTime);
+                }
             }
         });
 
@@ -244,6 +294,11 @@
     <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving || $gameWon}>
         <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
     </button>
+    {#if $gameRunning && !$bossAwake && !$bossEncounterActive}
+        <button id="rustle-btn" on:click={rustle}>
+            <i class="fas fa-wind"></i>
+        </button>
+    {/if}
     <div class="game-stats">
         <div id="time-elapsed">Time: {$gameTime}s</div>
         <div id="lives-container">

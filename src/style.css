@@ -96,6 +96,22 @@ body {
     background-color: #ffc107; /* Yellow */
 }
 
+#rustle-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: white;
+    background-color: #8D6E63; /* Brown Grey */
+    transition: background-color 0.3s;
+    margin-left: -60px; /* Adjust to position next to play/pause */
+    margin-right: 20px;
+}
+
 #damage-btn, #drop-aggro-btn {
     width: 80px;
     height: 80px;
