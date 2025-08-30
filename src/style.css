@@ -55,7 +55,7 @@ body {
 .game-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 20px;
 }
 
@@ -89,6 +89,29 @@ body {
 
 #play-pause-btn.paused {
     background-color: #ffc107; /* Yellow */
+}
+
+#damage-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    font-size: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: white;
+    background-color: #f44336; /* Red */
+    transition: background-color 0.3s;
+}
+
+#damage-btn.reviving {
+    background-color: #B0E0E6; /* PowderBlue */
+}
+
+#damage-btn:disabled {
+    background-color: #a5a5a5;
+    cursor: not-allowed;
 }
 
 .meter {

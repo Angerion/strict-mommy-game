@@ -1,72 +1,93 @@
 <script>
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving } from './stores.js';
     import { onMount } from 'svelte';
 
-    let gameInterval;
+    let gameLoop;
     let doorbellTimeout;
+    let wasRunning = false;
+    const replenishSound = new Audio('/sounds/replenish.mp3');
+    const doorbellSound = new Audio('/sounds/doorbell.mp3');
+    const reviveSound = new Audio('/sounds/revive.mp3');
+
+    function downPlayer() {
+        if ($lives <= 0 || $isDown || $isReviving) return;
+
+        wasRunning = $gameRunning;
+        if (wasRunning) {
+            gameRunning.set(false);
+        }
+
+        lives.update(n => n - 1);
+        isDown.set(true);
+    }
+
+    function startRevive() {
+        if (!$isDown || $isReviving) return;
+
+        isReviving.set(true);
+        reviveSound.play();
+
+        setTimeout(() => {
+            reviveSound.pause();
+            reviveSound.currentTime = 0;
+
+            isReviving.set(false);
+            isDown.set(false);
+
+            if (wasRunning) {
+                gameRunning.set(true);
+            }
+        }, 8000);
+    }
+
+    function replenishMeter(meterId) {
+        meters.update(currentMeters => {
+            const meter = currentMeters.find(m => m.id === meterId);
+            if (meter) {
+                meter.value = Math.min(100, meter.value + meter.replenish);
+                replenishSound.play();
+            }
+            return currentMeters;
+        });
+    }
+
+    function startGame() {
+        if ($isDown || $isReviving) return;
+        gameRunning.set(true);
+    }
+
+    function pauseGame() {
+        if ($isDown || $isReviving) return;
+        gameRunning.set(false);
+    }
 
     onMount(() => {
-        const unsubscribe = gameRunning.subscribe(running => {
-            if (running) {
-                startGame();
+        const unsubscribeGameRunning = gameRunning.subscribe(running => {
+            if (running && !$isDown && !$isReviving) {
+                scheduleDoorbell();
+                gameLoop = setInterval(() => {
+                    gameTime.update(t => t + 1);
+                    meters.update(m => {
+                        m.forEach(meter => {
+                            meter.value = Math.max(0, meter.value - meter.rate);
+                        });
+                        return m;
+                    });
+                }, 1000);
             } else {
-                pauseGame();
+                clearInterval(gameLoop);
+                clearTimeout(doorbellTimeout);
+                gameLoop = null;
+                doorbellTimeout = null;
             }
         });
 
         return () => {
-            unsubscribe();
-            pauseGame(); // Cleanup on component destroy
+            unsubscribeGameRunning();
+            clearInterval(gameLoop);
+            clearTimeout(doorbellTimeout);
         };
     });
-
-    function startGame() {
-        // Prevent multiple intervals
-        if (gameInterval) clearInterval(gameInterval);
-        if (doorbellTimeout) clearTimeout(doorbellTimeout);
-
-        gameInterval = setInterval(() => {
-            gameTime.update(t => t + 1);
-            meters.update(m => {
-                m.forEach(meter => {
-                    meter.value = Math.max(0, meter.value - meter.rate);
-                });
-                return m;
-            });
-        }, 1000);
-        scheduleDoorbell();
-    }
-
-    function pauseGame() {
-        clearInterval(gameInterval);
-        clearTimeout(doorbellTimeout);
-        gameInterval = null;
-        doorbellTimeout = null;
-    }
-
-    function loseLife() {
-        lives.update(l => l - 1);
-        if ($lives <= 0) {
-            alert('Game Over!');
-            gameRunning.set(false);
-        }
-        // Reset meters that hit 0
-        meters.update(m => {
-            m.forEach(meter => {
-                if (meter.value <= 0) {
-                    meter.value = 100;
-                }
-            });
-            return m;
-        });
-    }
-
-    // Watch for any meter hitting zero
-    $: {
-        if ($meters.some(m => m.value <= 0)) {
-            loseLife();
-        }
-    }
 
     function formatTime(seconds) {
         const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -109,21 +130,21 @@
 </script>
 
 <div class="game-controls">
-    <button id="play-pause-btn" class:paused={$gameRunning} on:click={() => gameRunning.set(!$gameRunning)}>
-        {#if $gameRunning}
-            <i class="fas fa-pause"></i>
-        {:else}
-            <i class="fas fa-play"></i>
-        {/if}
+    <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving}>
+        <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
     </button>
     <div class="game-stats">
-        <p>Game Time: {formatTime($gameTime)}</p>
+        <div id="time-elapsed">Time: {$gameTime}s</div>
         <div id="lives-container">
             {#each Array($lives) as _}
                 <i class="fas fa-heart"></i>
             {/each}
         </div>
+        <div id="npc-status">{$npcStatus}</div>
     </div>
+    <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving}>
+        <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
+    </button>
 </div>
 
 <div class="meters">
