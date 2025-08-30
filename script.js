@@ -8,12 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const npcStatusElement = document.getElementById('npc-status');
     const wakeupSound = document.getElementById('wakeup-sound');
     const clickSound = document.getElementById('click-sound');
+    const livesContainer = document.getElementById('lives-container');
 
     const hungerMeter = document.getElementById('hunger-meter');
     const thirstMeter = document.getElementById('thirst-meter');
     const cleanlinessMeter = document.getElementById('cleanliness-meter');
     const oxygenMeter = document.getElementById('oxygen-meter');
 
+    const startingLivesInput = document.getElementById('starting-lives');
     const hungerRateInput = document.getElementById('hunger-rate');
     const thirstRateInput = document.getElementById('thirst-rate');
     const cleanlinessRateInput = document.getElementById('cleanliness-rate');
@@ -31,8 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameRunning = false;
     let gameInterval;
     let doorbellTimeout;
+    let lives;
 
     let settings = {
+        startingLives: parseInt(startingLivesInput.value),
         hungerRate: parseFloat(hungerRateInput.value),
         thirstRate: parseFloat(thirstRateInput.value),
         cleanlinessRate: parseFloat(cleanlinessRateInput.value),
@@ -45,11 +49,61 @@ document.addEventListener('DOMContentLoaded', () => {
         doorbellMaxTime: parseInt(doorbellMaxTimeInput.value) * 1000,
     };
 
+    function initializeGame() {
+        lives = settings.startingLives;
+        updateLivesDisplay();
+        hungerProgress.value = 100;
+        thirstProgress.value = 100;
+        cleanlinessProgress.value = 100;
+        oxygenProgress.value = 100;
+        gameTime = 0;
+        gameTimeElement.textContent = formatTime(gameTime);
+        if (gameRunning) {
+            pauseGame();
+        }
+    }
+
+    function updateLivesDisplay() {
+        livesContainer.innerHTML = '';
+        for (let i = 0; i < lives; i++) {
+            livesContainer.innerHTML += '<i class="fas fa-heart"></i>';
+        }
+    }
+
+    function loseLife() {
+        lives--;
+        updateLivesDisplay();
+        if (lives <= 0) {
+            alert('Game Over!');
+            pauseGame();
+        }
+    }
+
     function updateMeters() {
-        if (hungerProgress.value > 0) hungerProgress.value -= settings.hungerRate;
-        if (thirstProgress.value > 0) thirstProgress.value -= settings.thirstRate;
-        if (cleanlinessProgress.value > 0) cleanlinessProgress.value -= settings.cleanlinessRate;
-        if (oxygenProgress.value > 0) oxygenProgress.value -= settings.oxygenRate;
+        if (hungerProgress.value > 0) {
+            hungerProgress.value -= settings.hungerRate;
+        } else {
+            loseLife();
+            hungerProgress.value = 100; // Reset after losing a life
+        }
+        if (thirstProgress.value > 0) {
+            thirstProgress.value -= settings.thirstRate;
+        } else {
+            loseLife();
+            thirstProgress.value = 100;
+        }
+        if (cleanlinessProgress.value > 0) {
+            cleanlinessProgress.value -= settings.cleanlinessRate;
+        } else {
+            loseLife();
+            cleanlinessProgress.value = 100;
+        }
+        if (oxygenProgress.value > 0) {
+            oxygenProgress.value -= settings.oxygenRate;
+        } else {
+            loseLife();
+            oxygenProgress.value = 100;
+        }
     }
 
     function formatTime(seconds) {
@@ -100,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     applySettingsBtn.addEventListener('click', () => {
+        settings.startingLives = parseInt(startingLivesInput.value);
         settings.hungerRate = parseFloat(hungerRateInput.value);
         settings.thirstRate = parseFloat(thirstRateInput.value);
         settings.cleanlinessRate = parseFloat(cleanlinessRateInput.value);
@@ -110,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settings.oxygenReplenish = parseFloat(oxygenReplenishInput.value);
         settings.doorbellMinTime = parseInt(doorbellMinTimeInput.value) * 1000;
         settings.doorbellMaxTime = parseInt(doorbellMaxTimeInput.value) * 1000;
+        initializeGame();
         alert('Settings applied!');
     });
 
@@ -132,6 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
         oxygenProgress.value = Math.min(100, oxygenProgress.value + settings.oxygenReplenish);
         clickSound.play();
     });
+
+    initializeGame();
 });
 
 function openTab(evt, tabName) {

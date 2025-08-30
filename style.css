@@ -9,26 +9,29 @@ body {
     max-width: 600px;
     margin: auto;
     background-color: #fff;
-    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 .tabs {
-    overflow: hidden;
+    display: flex;
+    width: 100%;
     border-bottom: 1px solid #ccc;
     margin-bottom: 20px;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
 }
 
 .tab-link {
     background-color: inherit;
-    float: left;
+    flex: 1;
     border: none;
     outline: none;
     cursor: pointer;
     padding: 14px 16px;
     transition: 0.3s;
     font-size: 17px;
+    text-align: center;
 }
 
 .tab-link:hover {
@@ -54,6 +57,19 @@ body {
     align-items: center;
     justify-content: center;
     margin-bottom: 20px;
+}
+
+.game-stats {
+    text-align: center;
+}
+
+#lives-container {
+    font-size: 24px;
+    color: red;
+}
+
+#lives-container .fa-heart {
+    margin: 0 3px;
 }
 
 #play-pause-btn {

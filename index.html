@@ -11,14 +11,16 @@
     <div class="wrapper">
         <div class="tabs">
             <button class="tab-link active" onclick="openTab(event, 'Game')">Game</button>
-            <button class="tab-link" onclick="openTab(event, 'Admin')">Admin</button>
+            <button class="tab-link" onclick="openTab(event, 'Admin')">Game Admin</button>
         </div>
 
         <div id="Game" class="tab-content" style="display: block;">
-            <h1>Game Interface</h1>
             <div class="game-controls">
                 <button id="play-pause-btn"><i class="fas fa-play"></i></button>
-                <p>Game Time: <span id="game-time">00:00:00</span></p>
+                <div class="game-stats">
+                    <p>Game Time: <span id="game-time">00:00:00</span></p>
+                    <div id="lives-container"></div>
+                </div>
             </div>
             <div class="meters">
                 <div class="meter" id="hunger-meter">
@@ -50,8 +52,11 @@
         </div>
 
         <div id="Admin" class="tab-content">
-            <h1>Game Admin</h1>
             <div class="admin-settings">
+                <div class="setting">
+                    <label for="starting-lives">Starting Lives:</label>
+                    <input type="number" id="starting-lives" value="3" min="1" max="6">
+                </div>
                 <div class="setting">
                     <label for="hunger-rate">Hunger Rate (per second):</label>
                     <input type="number" id="hunger-rate" value="0.8">
