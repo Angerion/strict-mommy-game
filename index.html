@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strict Mommy Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,32 +21,28 @@
                 <p>Game Time: <span id="game-time">00:00:00</span></p>
             </div>
             <div class="meters">
-                <div class="meter">
-                    <label for="hunger">Hunger:</label>
-                    <div class="meter-right">
+                <div class="meter" id="hunger-meter">
+                    <div class="progress-wrapper">
                         <progress id="hunger" value="100" max="100"></progress>
-                        <button id="hunger-btn">Replenish</button>
+                        <span class="progress-label">Hunger</span>
                     </div>
                 </div>
-                <div class="meter">
-                    <label for="thirst">Thirst:</label>
-                    <div class="meter-right">
+                <div class="meter" id="thirst-meter">
+                    <div class="progress-wrapper">
                         <progress id="thirst" value="100" max="100"></progress>
-                        <button id="thirst-btn">Replenish</button>
+                        <span class="progress-label">Thirst</span>
                     </div>
                 </div>
-                <div class="meter">
-                    <label for="cleanliness">Cleanliness:</label>
-                    <div class="meter-right">
+                <div class="meter" id="cleanliness-meter">
+                    <div class="progress-wrapper">
                         <progress id="cleanliness" value="100" max="100"></progress>
-                        <button id="cleanliness-btn">Replenish</button>
+                        <span class="progress-label">Cleanliness</span>
                     </div>
                 </div>
-                <div class="meter">
-                    <label for="oxygen">Oxygen:</label>
-                    <div class="meter-right">
+                <div class="meter" id="oxygen-meter">
+                    <div class="progress-wrapper">
                         <progress id="oxygen" value="100" max="100"></progress>
-                        <button id="oxygen-btn">Replenish</button>
+                        <span class="progress-label">Oxygen</span>
                     </div>
                 </div>
             </div>
@@ -100,6 +97,7 @@
         </div>
 
         <audio id="wakeup-sound" src="bad-guy-wakeup.mp3" preload="auto"></audio>
+        <audio id="click-sound" src="button-3.mp3" preload="auto"></audio>
 
         <script src="script.js"></script>
     </div>

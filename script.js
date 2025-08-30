@@ -7,11 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const oxygenProgress = document.getElementById('oxygen');
     const npcStatusElement = document.getElementById('npc-status');
     const wakeupSound = document.getElementById('wakeup-sound');
+    const clickSound = document.getElementById('click-sound');
 
-    const hungerBtn = document.getElementById('hunger-btn');
-    const thirstBtn = document.getElementById('thirst-btn');
-    const cleanlinessBtn = document.getElementById('cleanliness-btn');
-    const oxygenBtn = document.getElementById('oxygen-btn');
+    const hungerMeter = document.getElementById('hunger-meter');
+    const thirstMeter = document.getElementById('thirst-meter');
+    const cleanlinessMeter = document.getElementById('cleanliness-meter');
+    const oxygenMeter = document.getElementById('oxygen-meter');
 
     const hungerRateInput = document.getElementById('hunger-rate');
     const thirstRateInput = document.getElementById('thirst-rate');
@@ -110,20 +111,24 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Settings applied!');
     });
 
-    hungerBtn.addEventListener('click', () => {
+    hungerMeter.addEventListener('click', () => {
         hungerProgress.value = Math.min(100, hungerProgress.value + settings.hungerReplenish);
+        clickSound.play();
     });
 
-    thirstBtn.addEventListener('click', () => {
+    thirstMeter.addEventListener('click', () => {
         thirstProgress.value = Math.min(100, thirstProgress.value + settings.thirstReplenish);
+        clickSound.play();
     });
 
-    cleanlinessBtn.addEventListener('click', () => {
+    cleanlinessMeter.addEventListener('click', () => {
         cleanlinessProgress.value = Math.min(100, cleanlinessProgress.value + settings.cleanlinessReplenish);
+        clickSound.play();
     });
 
-    oxygenBtn.addEventListener('click', () => {
+    oxygenMeter.addEventListener('click', () => {
         oxygenProgress.value = Math.min(100, oxygenProgress.value + settings.oxygenReplenish);
+        clickSound.play();
     });
 });
 
