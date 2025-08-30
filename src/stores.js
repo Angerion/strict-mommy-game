@@ -3,6 +3,7 @@ import { writable } from 'svelte/store';
   // Game State
   export const gameTime = writable(0);
   export const gameRunning = writable(false);
+  export const gameWon = writable(false);
   export const isDown = writable(false);
   export const isReviving = writable(false);
   export const lives = writable(3);
@@ -58,5 +59,6 @@ import { writable } from 'svelte/store';
   export const settings = writable({
     startingLives: 3,
     doorbellMinTime: 45,
-    doorbellMaxTime: 80
+    doorbellMaxTime: 80,
+    gameLengthMinutes: 6
   });

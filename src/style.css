@@ -130,6 +130,15 @@ body {
     cursor: not-allowed;
 }
 
+.in-game-clock {
+    text-align: center;
+    font-size: 3em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
 .meter {
     margin-bottom: 15px;
     display: flex;
@@ -144,6 +153,48 @@ body {
 
 .meter:active {
     transform: scale(0.99);
+}
+
+.win-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.win-message {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.win-message h1 {
+    margin: 0 0 10px 0;
+    color: #4CAF50;
+}
+
+.win-message button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: none;
+    background-color: #2196F3;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.win-message button:hover {
+    background-color: #1976D2;
 }
 
 .progress-wrapper {

@@ -81,6 +81,10 @@
             Max Time to Encounter (s):
             <input type="number" bind:value={$settings.doorbellMaxTime}>
         </label>
+        <label>
+            Game Length (minutes):
+            <input type="number" bind:value={$settings.gameLengthMinutes}>
+        </label>
     </fieldset>
 
     <fieldset>

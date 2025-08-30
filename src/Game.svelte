@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive } from './stores.js';
+    import { derived } from 'svelte/store';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon } from './stores.js';
 
     let gameLoop;
     let doorbellTimeout;
@@ -10,9 +11,41 @@
     const replenishSound = new Audio('/sounds/replenish.mp3');
     const doorbellSound = new Audio('/sounds/doorbell.mp3');
     const reviveSound = new Audio('/sounds/revive.mp3');
+    const clockSound = new Audio('/sounds/grandfather_clock.mp3');
+
+    // --- New Clock Logic ---
+    const secondsPerGameHour = derived(settings, $settings => ($settings.gameLengthMinutes * 60) / 6);
+
+    const inGameHour = derived([gameTime, secondsPerGameHour], ([$gameTime, $secondsPerGameHour]) => {
+        if (!$secondsPerGameHour || $secondsPerGameHour <= 0) return 0;
+        return Math.floor($gameTime / $secondsPerGameHour);
+    });
+
+    const displayHour = derived(inGameHour, $inGameHour => {
+        if ($inGameHour >= 6) return '6:00 AM';
+        if ($inGameHour === 0) return '12:00 AM';
+        return `${$inGameHour}:00 AM`;
+    });
+
+    let previousHour = 0;
+    inGameHour.subscribe(hour => {
+        if (!$gameRunning || $gameWon) return;
+
+        if (hour >= 6) {
+            gameWon.set(true);
+            gameRunning.set(false);
+            npcStatus.set('You survived the night!');
+            if (chaseMusic) chaseMusic.pause();
+            clockSound.play();
+        } else if (hour > previousHour) {
+            clockSound.play();
+            previousHour = hour;
+        }
+    });
+    // --- End New Clock Logic ---
 
     function downPlayer() {
-        if ($lives <= 0 || $isDown || $isReviving || !$bossEncounterActive) return;
+        if ($lives <= 0 || $isDown || $isReviving || !$bossEncounterActive || $gameWon) return;
 
         wasRunning = $gameRunning;
         if (wasRunning) {
@@ -103,12 +136,12 @@
     }
 
     function startGame() {
-        if ($isDown || $isReviving) return;
+        if ($isDown || $isReviving || $gameWon) return;
         gameRunning.set(true);
     }
 
     function pauseGame() {
-        if ($isDown || $isReviving) return;
+        if ($isDown || $isReviving || $gameWon) return;
         gameRunning.set(false);
     }
 
@@ -126,6 +159,8 @@
     }
 
     function resetGame() {
+        gameWon.set(false);
+        previousHour = 0;
         gameTime.set(0);
         gameRunning.set(false);
         lives.set($settings.startingLives);
@@ -191,8 +226,18 @@
     });
 </script>
 
+{#if $gameWon}
+<div class="win-overlay">
+    <div class="win-message">
+        <h1>You Survived!</h1>
+        <p>Congratulations!</p>
+        <button on:click={resetGame}>Play Again</button>
+    </div>
+</div>
+{/if}
+
 <div class="game-controls">
-    <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving}>
+    <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving || $gameWon}>
         <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
     </button>
     <div class="game-stats">
@@ -205,19 +250,23 @@
         <div id="npc-status">{$npcStatus}</div>
     </div>
     {#if $bossAwake && !$bossEncounterActive}
-        <button id="damage-btn" class="start-encounter" on:click={startBossEncounter}>
-            <i class="fas fa-sword"></i>
+        <button id="damage-btn" class="start-encounter" on:click={startBossEncounter} disabled={$gameWon}>
+            <i class="fas fa-khanda"></i>
         </button>
     {:else if $bossEncounterActive}
         <div class="encounter-buttons">
-            <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving}>
+            <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving || $gameWon}>
                 <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
             </button>
-            <button id="drop-aggro-btn" on:click={dropAggro}>
+            <button id="drop-aggro-btn" on:click={dropAggro} disabled={$gameWon}>
                 <i class="fas fa-shield-alt"></i>
             </button>
         </div>
     {/if}
+</div>
+
+<div class="in-game-clock">
+    {$displayHour}
 </div>
 
 <div class="meters">
