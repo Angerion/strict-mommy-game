@@ -7,6 +7,8 @@ import { writable } from 'svelte/store';
   export const isReviving = writable(false);
   export const lives = writable(3);
   export const npcStatus = writable('');
+  export const bossAwake = writable(false);
+  export const bossEncounterActive = writable(false);
 
   // Meters
   export const meters = writable([
@@ -56,5 +58,5 @@ import { writable } from 'svelte/store';
   export const settings = writable({
     startingLives: 3,
     doorbellMinTime: 45,
-    doorbellMaxTime: 100,
+    doorbellMaxTime: 80
   });

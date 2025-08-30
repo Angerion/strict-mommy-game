@@ -1,16 +1,18 @@
 <script>
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving } from './stores.js';
     import { onMount } from 'svelte';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive } from './stores.js';
 
     let gameLoop;
     let doorbellTimeout;
+    let encounterTimeout;
     let wasRunning = false;
+    let chaseMusic; // Will hold the current chase music audio object
     const replenishSound = new Audio('/sounds/replenish.mp3');
     const doorbellSound = new Audio('/sounds/doorbell.mp3');
     const reviveSound = new Audio('/sounds/revive.mp3');
 
     function downPlayer() {
-        if ($lives <= 0 || $isDown || $isReviving) return;
+        if ($lives <= 0 || $isDown || $isReviving || !$bossEncounterActive) return;
 
         wasRunning = $gameRunning;
         if (wasRunning) {
@@ -37,9 +39,68 @@
             if (wasRunning) {
                 gameRunning.set(true);
             }
+            // End the encounter after a successful revive
+            dropAggro();
         }, 8000);
     }
 
+    function dropAggro() {
+        if (!$bossEncounterActive) return;
+
+        bossEncounterActive.set(false);
+        bossAwake.set(false);
+        if (chaseMusic) {
+            chaseMusic.pause();
+            chaseMusic.currentTime = 0;
+        }
+        npcStatus.set('');
+        clearTimeout(encounterTimeout);
+
+        // If player was downed, reset that state too
+        if ($isDown) {
+            isDown.set(false);
+        }
+        if ($isReviving) {
+            isReviving.set(false);
+            reviveSound.pause();
+            reviveSound.currentTime = 0;
+        }
+
+        // Restart the timer for the next encounter if the game is running
+        if ($gameRunning) {
+            scheduleDoorbell();
+        }
+    }
+
+    function startBossEncounter() {
+        if (!$bossAwake || $bossEncounterActive) return;
+        bossEncounterActive.set(true);
+
+        // Randomly select and play a chase music track
+        const trackNumber = Math.floor(Math.random() * 5) + 1;
+        chaseMusic = new Audio(`/sounds/zombiechase${trackNumber}.mp3`);
+        chaseMusic.loop = true;
+        chaseMusic.play();
+
+        encounterTimeout = setTimeout(dropAggro, 20000);
+    }
+
+    function replenish(meterId) {
+        meters.update(currentMeters => {
+            const meter = currentMeters.find(m => m.id === meterId);
+            if (meter) {
+                meter.value = Math.min(100, meter.value + meter.replenish);
+            }
+            return currentMeters;
+        });
+        replenishSound.play();
+    }
+
+    function handleKeydown(e, meterId) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            replenish(meterId);
+        }
+    }
 
     function startGame() {
         if ($isDown || $isReviving) return;
@@ -51,24 +112,73 @@
         gameRunning.set(false);
     }
 
+    function scheduleDoorbell() {
+        if (doorbellTimeout) clearTimeout(doorbellTimeout);
+        const timeToDoorbell = (Math.random() * ($settings.doorbellMaxTime - $settings.doorbellMinTime) + $settings.doorbellMinTime) * 1000;
+
+        console.log(`Next doorbell in: ${timeToDoorbell / 1000}s`); // For debugging
+
+        doorbellTimeout = setTimeout(() => {
+            doorbellSound.play();
+            npcStatus.set('The boss is waking up!');
+            bossAwake.set(true);
+        }, timeToDoorbell);
+    }
+
+    function resetGame() {
+        gameTime.set(0);
+        gameRunning.set(false);
+        lives.set($settings.startingLives);
+        npcStatus.set('');
+        isDown.set(false);
+        isReviving.set(false);
+        bossAwake.set(false);
+        bossEncounterActive.set(false);
+        if (chaseMusic) {
+            chaseMusic.pause();
+            chaseMusic.currentTime = 0;
+        }
+        clearTimeout(encounterTimeout);
+        meters.update(currentMeters => {
+            return currentMeters.map(meter => ({ ...meter, value: 100 }));
+        });
+    }
+
     onMount(() => {
         const unsubscribeGameRunning = gameRunning.subscribe(running => {
             if (running && !$isDown && !$isReviving) {
+                if ($bossEncounterActive && chaseMusic) chaseMusic.play();
                 scheduleDoorbell();
                 gameLoop = setInterval(() => {
                     gameTime.update(t => t + 1);
-                    meters.update(m => {
-                        m.forEach(meter => {
-                            meter.value = Math.max(0, meter.value - meter.rate);
+                    meters.update(currentMeters => {
+                        if ($lives <= 0) {
+                            gameRunning.set(false);
+                            npcStatus.set('Game Over!');
+                            if (chaseMusic) {
+                                chaseMusic.pause();
+                                chaseMusic.currentTime = 0;
+                            }
+                            bossAwake.set(false);
+                            bossEncounterActive.set(false);
+                            clearTimeout(encounterTimeout);
+                            return currentMeters;
+                        }
+                        return currentMeters.map(meter => {
+                            const newValue = Math.max(0, meter.value - meter.rate);
+                            if (newValue === 0) {
+                                lives.update(l => Math.max(0, l - 1));
+                                return { ...meter, value: 100 };
+                            }
+                            return { ...meter, value: newValue };
                         });
-                        return m;
                     });
                 }, 1000);
             } else {
+                if ($bossEncounterActive && chaseMusic) chaseMusic.pause();
                 clearInterval(gameLoop);
                 clearTimeout(doorbellTimeout);
-                gameLoop = null;
-                doorbellTimeout = null;
+                clearTimeout(encounterTimeout);
             }
         });
 
@@ -76,45 +186,9 @@
             unsubscribeGameRunning();
             clearInterval(gameLoop);
             clearTimeout(doorbellTimeout);
+            clearTimeout(encounterTimeout);
         };
     });
-
-    function formatTime(seconds) {
-        const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        return `${h}:${m}:${s}`;
-    }
-
-
-    function scheduleDoorbell() {
-        const time = Math.random() * ($settings.doorbellMaxTime - $settings.doorbellMinTime) + $settings.doorbellMinTime;
-        doorbellTimeout = setTimeout(() => {
-            doorbellSound.play();
-            npcStatus.set('The bad guy is waking up!');
-            setTimeout(() => {
-                npcStatus.set('');
-            }, 5000);
-            if($gameRunning) scheduleDoorbell();
-        }, time * 1000);
-    }
-
-    function replenish(meterId) {
-        replenishSound.play();
-        meters.update(m => {
-            const meter = m.find(meter => meter.id === meterId);
-            if (meter) {
-                meter.value = Math.min(100, meter.value + meter.replenish);
-            }
-            return m;
-        });
-    }
-
-    function handleKeydown(e, meterId) {
-        if (e.key === 'Enter' || e.key === ' ') {
-            replenish(meterId);
-        }
-    }
 </script>
 
 <div class="game-controls">
@@ -130,9 +204,20 @@
         </div>
         <div id="npc-status">{$npcStatus}</div>
     </div>
-    <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving}>
-        <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
-    </button>
+    {#if $bossAwake && !$bossEncounterActive}
+        <button id="damage-btn" class="start-encounter" on:click={startBossEncounter}>
+            <i class="fas fa-sword"></i>
+        </button>
+    {:else if $bossEncounterActive}
+        <div class="encounter-buttons">
+            <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving}>
+                <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
+            </button>
+            <button id="drop-aggro-btn" on:click={dropAggro}>
+                <i class="fas fa-shield-alt"></i>
+            </button>
+        </div>
+    {/if}
 </div>
 
 <div class="meters">

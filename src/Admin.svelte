@@ -68,6 +68,22 @@
     </fieldset>
 
     <fieldset>
+        <legend>Game Rules</legend>
+        <label>
+            Starting Lives:
+            <input type="number" bind:value={$settings.startingLives}>
+        </label>
+        <label>
+            Min Time to Encounter (s):
+            <input type="number" bind:value={$settings.doorbellMinTime}>
+        </label>
+        <label>
+            Max Time to Encounter (s):
+            <input type="number" bind:value={$settings.doorbellMaxTime}>
+        </label>
+    </fieldset>
+
+    <fieldset>
         <legend>Meters</legend>
         {#each $meters as meter (meter.id)}
             <div class="meter-setting">

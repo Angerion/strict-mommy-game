@@ -59,6 +59,11 @@ body {
     margin-bottom: 20px;
 }
 
+.encounter-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .game-stats {
     text-align: center;
 }
@@ -91,7 +96,7 @@ body {
     background-color: #ffc107; /* Yellow */
 }
 
-#damage-btn {
+#damage-btn, #drop-aggro-btn {
     width: 80px;
     height: 80px;
     border-radius: 50%;
@@ -101,8 +106,19 @@ body {
     justify-content: center;
     border: none;
     color: white;
-    background-color: #f44336; /* Red */
     transition: background-color 0.3s;
+}
+
+#damage-btn {
+    background-color: #f44336; /* Red */
+}
+
+#drop-aggro-btn {
+    background-color: #607D8B; /* Blue Grey */
+}
+
+#damage-btn.start-encounter {
+    background-color: #4a148c; /* Deep Purple */
 }
 
 #damage-btn.reviving {
