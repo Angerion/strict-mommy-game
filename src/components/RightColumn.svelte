@@ -117,4 +117,27 @@
     .boss-btn:disabled:hover {
         transform: none;
     }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .right-column {
+            min-width: 80px;
+            padding: 10px 5px;
+            min-height: 100px;
+        }
+
+        .boss-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+        }
+
+        .boss-actions {
+            min-height: 80px;
+        }
+
+        .encounter-buttons {
+            gap: 8px;
+        }
+    }
 </style>

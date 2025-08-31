@@ -159,4 +159,46 @@
         border-radius: 6px;
         border: 1px solid #ced4da;
     }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .center-column {
+            padding: 8px;
+            max-width: none;
+        }
+
+        .clock-frame {
+            padding: 8px 12px;
+        }
+
+        .clock-hour {
+            font-size: 2em;
+            margin-bottom: 3px;
+        }
+
+        .clock-period {
+            font-size: 0.9em;
+        }
+
+        .lives-row .fa-heart {
+            font-size: 20px;
+            margin: 0 1px;
+        }
+
+        .timer-value {
+            font-size: 1em;
+            padding: 3px 6px;
+        }
+
+        .game-status {
+            padding: 6px 10px;
+            font-size: 0.9em;
+        }
+
+        .game-clock,
+        .lives-section,
+        .timer-section {
+            margin-bottom: 15px;
+        }
+    }
 </style>

@@ -26,9 +26,18 @@ body {
 
 @media (max-width: 768px) {
     .game-layout {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        /* Keep three-column layout on mobile but make it more compact */
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 8px;
+        min-height: 150px;
+    }
+    
+    /* Make the layout components more compact on mobile */
+    .game-layout > * {
+        flex: 1;
+        min-width: 0; /* Allow flex items to shrink below their content size */
     }
 }
 

@@ -8,6 +8,11 @@
 
   function openTab(tabName) {
     activeTab = tabName;
+    // Auto-pause game when switching to Admin tab
+    if (tabName === 'Admin' && $gameRunning) {
+      isPausedFromAdmin = true;
+      // This will be handled by Admin component - we just set the flag
+    }
   }
 
   function handlePauseFromAdmin() {

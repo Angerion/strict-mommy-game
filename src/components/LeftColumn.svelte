@@ -76,4 +76,22 @@
         cursor: not-allowed;
         transform: none;
     }
+
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+        .left-column {
+            min-width: 80px;
+            padding: 10px 5px;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+        }
+
+        .control-buttons {
+            gap: 10px;
+        }
+    }
 </style>

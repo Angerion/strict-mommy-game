@@ -5,6 +5,11 @@
 
   export let isPausedFromAdmin = false;
 
+  // Watch for changes to isPausedFromAdmin and auto-pause the game
+  $: if (isPausedFromAdmin && $gameRunning) {
+    $gameRunning = false;
+  }
+
   let newMeterName = '';
   let newMeterRate = 1;
   let newMeterReplenish = 50;
@@ -88,382 +93,389 @@
   }
 </script>
 
-<div class="admin-settings">
-  <!-- Game Control Section -->
-  <fieldset>
-    <legend>🎮 Game Control</legend>
-    <div class="game-control-section">
-      <div class="pause-control">
-        <button 
-          class="pause-btn" 
-          class:active={isPausedFromAdmin}
-          on:click={toggleGamePause}
-          disabled={!$gameRunning && !isPausedFromAdmin}
-        >
-          {#if isPausedFromAdmin}
-            <i class="fas fa-pause"></i> Game Paused
-          {:else if $gameRunning}
-            <i class="fas fa-pause"></i> Pause Game
-          {:else}
-            <i class="fas fa-pause"></i> Game Not Running
-          {/if}
-        </button>
-      </div>
-      
-      {#if isPausedFromAdmin}
-        <div class="game-stats-display">
-          <h4>Game Statistics</h4>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">Lives:</span>
-              <span class="stat-value">{$lives}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Game Time:</span>
-              <span class="stat-value">{Math.floor($gameTime / 60)}:{($gameTime % 60).toString().padStart(2, '0')}</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Meters:</span>
-              <span class="stat-value">{$meters.length}</span>
-            </div>
-          </div>
-          
-          <div class="meters-status">
-            <h5>Current Meter Values:</h5>
-            {#each $meters as meter}
-              <div class="meter-stat">
-                <span class="meter-name">{meter.name}:</span>
-                <span class="meter-value">{meter.value.toFixed(1)}%</span>
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/if}
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Difficulty Presets</legend>
-    <div class="setting">
-      <label for="difficulty-preset">Select Difficulty:</label>
-      <select id="difficulty-preset" bind:value={$currentPreset} on:change={handlePresetChange}>
-        {#each availablePresets as presetKey}
-          <option value={presetKey}>{gamePresets[presetKey].name}</option>
-        {/each}
-      </select>
-      <p class="preset-description">{gamePresets[$currentPreset].description}</p>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>⚙️ General Settings</legend>
-    
-    <Slider
-      bind:value={$settings.startingLives}
-      min={1}
-      max={10}
-      step={1}
-      label="Starting Lives"
-      emoji="❤️"
-      tooltip="Number of lives player starts with. Lose a life when any meter reaches 0."
-      color="#f44336"
-    />
-
-    <Slider
-      bind:value={$settings.doorbellMinTime}
-      min={5}
-      max={300}
-      step={5}
-      label="Doorbell Min Time"
-      emoji="⏱️"
-      unit="s"
-      tooltip="Minimum time between doorbell events in seconds."
-      color="#2196F3"
-    />
-
-    <Slider
-      bind:value={$settings.doorbellMaxTime}
-      min={5}
-      max={300}
-      step={5}
-      label="Doorbell Max Time"
-      emoji="⏱️"
-      unit="s"
-      tooltip="Maximum time between doorbell events in seconds."
-      color="#2196F3"
-    />
-
-    <Slider
-      bind:value={$settings.gameLengthMinutes}
-      min={1}
-      max={30}
-      step={1}
-      label="Game Length"
-      emoji="⏲️"
-      unit=" min"
-      tooltip="Total duration of the game in minutes."
-      color="#9C27B0"
-    />
-  </fieldset>
-
-  <fieldset>
-    <legend>🍃 Rustle Settings</legend>
-    
-    <Slider
-      bind:value={$settings.rustleMinPercent}
-      min={5}
-      max={95}
-      step={5}
-      label="Rustle Min Percentage"
-      emoji="🍃"
-      unit="%"
-      tooltip="Minimum percentage chance for rustle events."
-      color="#8D6E63"
-    />
-
-    <Slider
-      bind:value={$settings.rustleMaxPercent}
-      min={5}
-      max={95}
-      step={5}
-      label="Rustle Max Percentage"
-      emoji="🍃"
-      unit="%"
-      tooltip="Maximum percentage chance for rustle events."
-      color="#8D6E63"
-    />
-  </fieldset>
-
-  <fieldset>
-    <legend>🔊 Audio Settings</legend>
-    
-    <Slider
-      bind:value={$audioSettings.masterVolume}
-      min={0}
-      max={1}
-      step={0.1}
-      label="Master Volume"
-      emoji="🔊"
-      unit=""
-      tooltip="Overall volume for all game audio."
-      color="#4CAF50"
-    />
-
-    <Slider
-      bind:value={$audioSettings.soundEffectsVolume}
-      min={0}
-      max={1}
-      step={0.1}
-      label="Sound Effects Volume"
-      emoji="🔔"
-      unit=""
-      tooltip="Volume for game sound effects (replenish, doorbell, etc.)."
-      color="#FF9800"
-    />
-
-    <Slider
-      bind:value={$audioSettings.musicVolume}
-      min={0}
-      max={1}
-      step={0.1}
-      label="Music Volume"
-      emoji="🎵"
-      unit=""
-      tooltip="Volume for background music and chase music."
-      color="#9C27B0"
-    />
-
-    <div class="setting">
-      <label class="checkbox-label">
-        <input type="checkbox" bind:checked={$audioSettings.muteSounds} />
-        <span class="checkmark"></span>
-        🔇 Mute Sound Effects
-      </label>
-    </div>
-
-    <div class="setting">
-      <label class="checkbox-label">
-        <input type="checkbox" bind:checked={$audioSettings.muteMusic} />
-        <span class="checkmark"></span>
-        🔇 Mute Music
-      </label>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>📊 Meters Configuration</legend>
-    {#each $meters as meter (meter.id)}
-      <div class="meter-setting" style="border-left: 4px solid {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">
-        <div class="meter-header">
-          <h4 class="meter-name" style="color: {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">{meter.name}</h4>
-          <button class="remove-btn" on:click={() => removeMeter(meter.id)}>
-            🗑️
+<div class="admin-container">
+  <div class="admin-settings">
+    <!-- Game Control Section -->
+    <fieldset>
+      <legend>🎮 Game Control</legend>
+      <div class="game-control-section">
+        <div class="pause-control">
+          <button 
+            class="pause-btn" 
+            class:active={isPausedFromAdmin}
+            on:click={toggleGamePause}
+            disabled={!$gameRunning && !isPausedFromAdmin}
+          >
+            {#if isPausedFromAdmin}
+              <i class="fas fa-pause"></i> Game Paused
+            {:else if $gameRunning}
+              <i class="fas fa-pause"></i> Pause Game
+            {:else}
+              <i class="fas fa-pause"></i> Game Not Running
+            {/if}
           </button>
         </div>
         
-        <div class="meter-sliders">
-          <Slider
-            bind:value={meter.rate}
-            min={0.05}
-            max={2.00}
-            step={0.05}
-            label="Rate"
-            emoji="📊"
-            unit=" ticks/s"
-            tooltip="Rate at which this meter decreases per second."
-            color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
-            showMinMax={false}
-          />
-
-          <Slider
-            bind:value={meter.replenish}
-            min={1}
-            max={100}
-            step={1}
-            label="Replenish"
-            emoji="🔄"
-            unit="%"
-            tooltip="Amount this meter replenishes when clicked."
-            color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
-            showMinMax={false}
-          />
-
-          <!-- Consumable Configuration -->
-          <div class="consumable-config">
-            <h5 class="consumable-title">🎒 Consumable Configuration</h5>
-            <div class="setting">
-              <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  bind:checked={meter.consumable.enabled}
-                  on:change={() => {
-                    if (!meter.consumable.enabled) {
-                      meter.consumable.name = "";
-                      meter.consumable.icon = "";
-                      meter.consumable.count = 0;
-                    }
-                    $meters = $meters; // Trigger reactivity
-                  }}
-                />
-                <span class="checkmark"></span>
-                Enable Consumables
-              </label>
+        {#if isPausedFromAdmin}
+          <div class="game-stats-display">
+            <h4>Game Statistics</h4>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">Lives:</span>
+                <span class="stat-value">{$lives}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Game Time:</span>
+                <span class="stat-value">{Math.floor($gameTime / 60)}:{($gameTime % 60).toString().padStart(2, '0')}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Meters:</span>
+                <span class="stat-value">{$meters.length}</span>
+              </div>
             </div>
             
-            {#if meter.consumable.enabled}
-              <div class="consumable-details">
-                <div class="setting">
-                  <label for="consumable-name-{meter.id}">📝 Consumable Name:</label>
-                  <input 
-                    type="text" 
-                    id="consumable-name-{meter.id}"
-                    bind:value={meter.consumable.name}
-                    placeholder="e.g., Oxygen Tank"
-                  />
+            <div class="meters-status">
+              <h5>Current Meter Values:</h5>
+              {#each $meters as meter}
+                <div class="meter-stat">
+                  <span class="meter-name">{meter.name}:</span>
+                  <span class="meter-value">{meter.value.toFixed(1)}%</span>
                 </div>
-                
-                <div class="setting">
-                  <label for="consumable-icon-{meter.id}">🎭 Icon (emoji):</label>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Difficulty Presets</legend>
+      <div class="setting">
+        <label for="difficulty-preset">Select Difficulty:</label>
+        <select id="difficulty-preset" bind:value={$currentPreset} on:change={handlePresetChange}>
+          {#each availablePresets as presetKey}
+            <option value={presetKey}>{gamePresets[presetKey].name}</option>
+          {/each}
+        </select>
+        <p class="preset-description">{gamePresets[$currentPreset].description}</p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>⚙️ General Settings</legend>
+      
+      <Slider
+        bind:value={$settings.startingLives}
+        min={1}
+        max={10}
+        step={1}
+        label="Starting Lives"
+        emoji="❤️"
+        tooltip="Number of lives player starts with. Lose a life when any meter reaches 0."
+        color="#f44336"
+      />
+
+      <Slider
+        bind:value={$settings.doorbellMinTime}
+        min={5}
+        max={300}
+        step={5}
+        label="Doorbell Min Time"
+        emoji="⏱️"
+        unit="s"
+        tooltip="Minimum time between doorbell events in seconds."
+        color="#2196F3"
+      />
+
+      <Slider
+        bind:value={$settings.doorbellMaxTime}
+        min={5}
+        max={300}
+        step={5}
+        label="Doorbell Max Time"
+        emoji="⏱️"
+        unit="s"
+        tooltip="Maximum time between doorbell events in seconds."
+        color="#2196F3"
+      />
+
+      <Slider
+        bind:value={$settings.gameLengthMinutes}
+        min={1}
+        max={30}
+        step={1}
+        label="Game Length"
+        emoji="⏲️"
+        unit=" min"
+        tooltip="Total duration of the game in minutes."
+        color="#9C27B0"
+      />
+    </fieldset>
+
+    <fieldset>
+      <legend>🍃 Rustle Settings</legend>
+      
+      <Slider
+        bind:value={$settings.rustleMinPercent}
+        min={5}
+        max={95}
+        step={5}
+        label="Rustle Min Percentage"
+        emoji="🍃"
+        unit="%"
+        tooltip="Minimum percentage chance for rustle events."
+        color="#8D6E63"
+      />
+
+      <Slider
+        bind:value={$settings.rustleMaxPercent}
+        min={5}
+        max={95}
+        step={5}
+        label="Rustle Max Percentage"
+        emoji="🍃"
+        unit="%"
+        tooltip="Maximum percentage chance for rustle events."
+        color="#8D6E63"
+      />
+    </fieldset>
+
+    <fieldset>
+      <legend>🔊 Audio Settings</legend>
+      
+      <Slider
+        bind:value={$audioSettings.masterVolume}
+        min={0}
+        max={1}
+        step={0.1}
+        label="Master Volume"
+        emoji="🔊"
+        unit=""
+        tooltip="Overall volume for all game audio."
+        color="#4CAF50"
+      />
+
+      <Slider
+        bind:value={$audioSettings.soundEffectsVolume}
+        min={0}
+        max={1}
+        step={0.1}
+        label="Sound Effects Volume"
+        emoji="🔔"
+        unit=""
+        tooltip="Volume for game sound effects (replenish, doorbell, etc.)."
+        color="#FF9800"
+      />
+
+      <Slider
+        bind:value={$audioSettings.musicVolume}
+        min={0}
+        max={1}
+        step={0.1}
+        label="Music Volume"
+        emoji="🎵"
+        unit=""
+        tooltip="Volume for background music and chase music."
+        color="#9C27B0"
+      />
+
+      <div class="setting">
+        <label class="checkbox-label">
+          <input type="checkbox" bind:checked={$audioSettings.muteSounds} />
+          <span class="checkmark"></span>
+          🔇 Mute Sound Effects
+        </label>
+      </div>
+
+      <div class="setting">
+        <label class="checkbox-label">
+          <input type="checkbox" bind:checked={$audioSettings.muteMusic} />
+          <span class="checkmark"></span>
+          🔇 Mute Music
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>📊 Meters Configuration</legend>
+      {#each $meters as meter (meter.id)}
+        <div class="meter-setting" style="border-left: 4px solid {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">
+          <div class="meter-header">
+            <h4 class="meter-name" style="color: {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">{meter.name}</h4>
+            <button class="remove-btn" on:click={() => removeMeter(meter.id)}>
+              🗑️
+            </button>
+          </div>
+          
+          <div class="meter-sliders">
+            <Slider
+              bind:value={meter.rate}
+              min={0.05}
+              max={2.00}
+              step={0.05}
+              label="Rate"
+              emoji="📊"
+              unit=" ticks/s"
+              tooltip="Rate at which this meter decreases per second."
+              color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+              showMinMax={false}
+            />
+
+            <Slider
+              bind:value={meter.replenish}
+              min={1}
+              max={100}
+              step={1}
+              label="Replenish"
+              emoji="🔄"
+              unit="%"
+              tooltip="Amount this meter replenishes when clicked."
+              color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+              showMinMax={false}
+            />
+
+            <!-- Consumable Configuration -->
+            <div class="consumable-config">
+              <h5 class="consumable-title">🎒 Consumable Configuration</h5>
+              <div class="setting">
+                <label class="checkbox-label">
                   <input 
-                    type="text" 
-                    id="consumable-icon-{meter.id}"
-                    bind:value={meter.consumable.icon}
-                    placeholder="e.g., 🫁"
-                    maxlength="4"
+                    type="checkbox" 
+                    bind:checked={meter.consumable.enabled}
+                    on:change={() => {
+                      if (!meter.consumable.enabled) {
+                        meter.consumable.name = "";
+                        meter.consumable.icon = "";
+                        meter.consumable.count = 0;
+                      }
+                      $meters = $meters; // Trigger reactivity
+                    }}
                   />
-                </div>
-                
-                <Slider
-                  bind:value={meter.consumable.count}
-                  min={0}
-                  max={10}
-                  step={1}
-                  label="Count"
-                  emoji="🔢"
-                  tooltip="Number of consumables available for this meter."
-                  color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
-                  showMinMax={false}
-                />
-                
-                <Slider
-                  bind:value={meter.consumable.restoreAmount}
-                  min={50}
-                  max={100}
-                  step={5}
-                  label="Restore Amount"
-                  emoji="💯"
-                  unit="%"
-                  tooltip="How much the consumable restores (usually 100%)."
-                  color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
-                  showMinMax={false}
-                />
+                  <span class="checkmark"></span>
+                  Enable Consumables
+                </label>
               </div>
-            {/if}
+              
+              {#if meter.consumable.enabled}
+                <div class="consumable-details">
+                  <div class="setting">
+                    <label for="consumable-name-{meter.id}">📝 Consumable Name:</label>
+                    <input 
+                      type="text" 
+                      id="consumable-name-{meter.id}"
+                      bind:value={meter.consumable.name}
+                      placeholder="e.g., Oxygen Tank"
+                    />
+                  </div>
+                  
+                  <div class="setting">
+                    <label for="consumable-icon-{meter.id}">🎭 Icon (emoji):</label>
+                    <input 
+                      type="text" 
+                      id="consumable-icon-{meter.id}"
+                      bind:value={meter.consumable.icon}
+                      placeholder="e.g., 🫁"
+                      maxlength="4"
+                    />
+                  </div>
+                  
+                  <Slider
+                    bind:value={meter.consumable.count}
+                    min={0}
+                    max={10}
+                    step={1}
+                    label="Count"
+                    emoji="🔢"
+                    tooltip="Number of consumables available for this meter."
+                    color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+                    showMinMax={false}
+                  />
+                  
+                  <Slider
+                    bind:value={meter.consumable.restoreAmount}
+                    min={50}
+                    max={100}
+                    step={5}
+                    label="Restore Amount"
+                    emoji="💯"
+                    unit="%"
+                    tooltip="How much the consumable restores (usually 100%)."
+                    color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+                    showMinMax={false}
+                  />
+                </div>
+              {/if}
+            </div>
           </div>
         </div>
+      {/each}
+    </fieldset>
+
+    <fieldset>
+      <legend>➕ Add New Meter</legend>
+      <div class="setting">
+        <label for="new-meter-name">📝 Name:</label>
+        <input type="text" id="new-meter-name" bind:value={newMeterName} />
       </div>
-    {/each}
-  </fieldset>
+      
+      <Slider
+        bind:value={newMeterRate}
+        min={0.05}
+        max={2.00}
+        step={0.05}
+        label="Rate"
+        emoji="📊"
+        unit=" ticks/s"
+        tooltip="Rate at which this meter decreases per second."
+        color="#4CAF50"
+        showMinMax={false}
+      />
 
-  <fieldset>
-    <legend>➕ Add New Meter</legend>
-    <div class="setting">
-      <label for="new-meter-name">📝 Name:</label>
-      <input type="text" id="new-meter-name" bind:value={newMeterName} />
+      <Slider
+        bind:value={newMeterReplenish}
+        min={1}
+        max={100}
+        step={1}
+        label="Replenish"
+        emoji="🔄"
+        unit="%"
+        tooltip="Amount this meter replenishes when clicked."
+        color="#4CAF50"
+        showMinMax={false}
+      />
+
+      <div class="setting">
+        <label for="new-meter-color">🎨 Color:</label>
+        <select id="new-meter-color" bind:value={newMeterColor}>
+          {#each colorOptions as color}
+            <option value={color.value}>{color.name}</option>
+          {/each}
+        </select>
+        <div class="color-preview" style="background: {newMeterColor}"></div>
+      </div>
+      <button on:click={addMeter} class="add-meter-btn">➕ Add Meter</button>
+    </fieldset>
+
+    <div class="admin-actions">
+      <button on:click={handleResetToDefaults} class="reset-btn">🔄 Reset to Defaults</button>
+      <button on:click={applySettings} class="apply-btn">✅ Apply Settings & Reset Game</button>
     </div>
-    
-    <Slider
-      bind:value={newMeterRate}
-      min={0.05}
-      max={2.00}
-      step={0.05}
-      label="Rate"
-      emoji="📊"
-      unit=" ticks/s"
-      tooltip="Rate at which this meter decreases per second."
-      color="#4CAF50"
-      showMinMax={false}
-    />
-
-    <Slider
-      bind:value={newMeterReplenish}
-      min={1}
-      max={100}
-      step={1}
-      label="Replenish"
-      emoji="🔄"
-      unit="%"
-      tooltip="Amount this meter replenishes when clicked."
-      color="#4CAF50"
-      showMinMax={false}
-    />
-
-    <div class="setting">
-      <label for="new-meter-color">🎨 Color:</label>
-      <select id="new-meter-color" bind:value={newMeterColor}>
-        {#each colorOptions as color}
-          <option value={color.value}>{color.name}</option>
-        {/each}
-      </select>
-      <div class="color-preview" style="background: {newMeterColor}"></div>
-    </div>
-    <button on:click={addMeter} class="add-meter-btn">➕ Add Meter</button>
-  </fieldset>
-
-  <div class="admin-actions">
-    <button on:click={handleResetToDefaults} class="reset-btn">🔄 Reset to Defaults</button>
-    <button on:click={applySettings} class="apply-btn">✅ Apply Settings & Reset Game</button>
   </div>
+
+  <!-- Floating Action Button for Resume Game -->
+  {#if isPausedFromAdmin}
+    <button class="fab-resume" on:click={toggleGamePause} title="Resume Game">
+      <i class="fas fa-play"></i>
+    </button>
+  {/if}
 </div>
 
-<!-- Floating Action Button for Resume Game -->
-{#if isPausedFromAdmin}
-  <button class="fab-resume" on:click={toggleGamePause} title="Resume Game">
-    <i class="fas fa-play"></i>
-  </button>
-{/if}
-
 <style>
+  .admin-container {
+    position: relative;
+    height: 100%;
+  }
+
   /* Game Control Section */
   .game-control-section {
     margin-bottom: 1rem;
@@ -795,7 +807,7 @@
 
   /* Floating Action Button */
   .fab-resume {
-    position: fixed;
+    position: absolute;
     bottom: 24px;
     right: 24px;
     width: 56px;
