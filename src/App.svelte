@@ -15,6 +15,10 @@
     }
   }
 
+  function switchToGameTab() {
+    activeTab = 'Game';
+  }
+
   function handlePauseFromAdmin() {
     if ($gameRunning) {
       isPausedFromAdmin = true;
@@ -47,7 +51,7 @@
 
     {#if activeTab === 'Admin'}
       <div class="tab-content">
-        <Admin bind:isPausedFromAdmin />
+        <Admin bind:isPausedFromAdmin onSwitchToGame={switchToGameTab} />
       </div>
     {/if}
   </div>

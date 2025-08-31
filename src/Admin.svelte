@@ -4,6 +4,7 @@
   import Slider from "./Slider.svelte";
 
   export let isPausedFromAdmin = false;
+  export let onSwitchToGame = () => {};
 
   // Watch for changes to isPausedFromAdmin and auto-pause the game
   $: if (isPausedFromAdmin && $gameRunning) {
@@ -60,6 +61,8 @@
     } else if (isPausedFromAdmin) {
       $gameRunning = true;
       isPausedFromAdmin = false;
+      // Auto-switch back to Game tab when resuming
+      onSwitchToGame();
     }
   }
 

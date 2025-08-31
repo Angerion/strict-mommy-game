@@ -29,15 +29,17 @@
                 {/if}
             </div>
             <div class="progress-wrapper">
-                <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
-                <span class="progress-label">
-                    {meter.name}
+                <div class="progress-label-container">
+                    <span class="progress-label-centered">
+                        {meter.name}
+                    </span>
                     {#if meter.consumable.enabled}
                         <span class="consumable-count">
                             {meter.consumable.icon} {meter.consumable.count}
                         </span>
                     {/if}
-                </span>
+                </div>
+                <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
             </div>
         </div>
         {/each}
@@ -101,14 +103,20 @@
         flex-direction: column;
     }
 
-    .progress-label {
-        font-size: 14px;
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 5px;
+    .progress-label-container {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 5px;
+        width: 100%;
+    }
+
+    .progress-label-centered {
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+        flex: 1;
+        text-align: center;
     }
 
     .consumable-count {
@@ -122,8 +130,8 @@
 
     progress {
         width: 100%;
-        height: 20px;
-        border-radius: 10px;
+        height: 28px;
+        border-radius: 12px;
         border: none;
         background-color: #e9ecef;
         overflow: hidden;
@@ -131,18 +139,18 @@
 
     progress::-webkit-progress-bar {
         background-color: #e9ecef;
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
     progress::-webkit-progress-value {
         background-color: var(--progress-color, #007bff);
-        border-radius: 10px;
+        border-radius: 12px;
         transition: width 0.3s ease;
     }
 
     progress::-moz-progress-bar {
         background-color: var(--progress-color, #007bff);
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
     /* Custom scrollbar for meters */
