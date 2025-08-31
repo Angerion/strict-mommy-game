@@ -48,8 +48,8 @@ export const defaultMeters = [
 // Default game settings
 export const defaultSettings = {
   startingLives: 3,
-  doorbellMinTime: 60,
-  doorbellMaxTime: 90,
+  doorbellMinTime: 70,
+  doorbellMaxTime: 100,
   gameLengthMinutes: 15,
   rustleMinPercent: 25,
   rustleMaxPercent: 50
@@ -62,14 +62,14 @@ export const gamePresets = {
     description: "More forgiving settings for casual play",
     settings: {
       startingLives: 5,
-      doorbellMinTime: 90,
-      doorbellMaxTime: 120,
+      doorbellMinTime: 100,
+      doorbellMaxTime: 130,
       gameLengthMinutes: 12,
       rustleMinPercent: 15,
       rustleMaxPercent: 30
     },
     meterAdjustments: {
-      rateMultiplier: 0.7,  // 30% slower decay
+      rateMultiplier: 0.805,  // 30% slower decay
       replenishMultiplier: 1.3  // 30% more replenish
     }
   },
@@ -78,7 +78,7 @@ export const gamePresets = {
     description: "Balanced difficulty for standard gameplay",
     settings: defaultSettings,
     meterAdjustments: {
-      rateMultiplier: 1.0,
+      rateMultiplier: 1.15,
       replenishMultiplier: 1.0
     }
   },
@@ -87,14 +87,14 @@ export const gamePresets = {
     description: "Challenging settings for experienced players", 
     settings: {
       startingLives: 2,
-      doorbellMinTime: 45,
-      doorbellMaxTime: 70,
+      doorbellMinTime: 55,
+      doorbellMaxTime: 80,
       gameLengthMinutes: 18,
       rustleMinPercent: 35,
       rustleMaxPercent: 60
     },
     meterAdjustments: {
-      rateMultiplier: 1.4,  // 40% faster decay
+      rateMultiplier: 1.61,  // 40% faster decay
       replenishMultiplier: 0.8  // 20% less replenish
     }
   }
