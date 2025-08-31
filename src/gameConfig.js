@@ -90,6 +90,15 @@ export const defaultSettings = {
   rustleMaxPercent: 50
 };
 
+// Default audio settings
+export const defaultAudioSettings = {
+  masterVolume: 0.7,
+  soundEffectsVolume: 0.8,
+  musicVolume: 0.6,
+  muteSounds: false,
+  muteMusic: false
+};
+
 // Game difficulty presets
 export const gamePresets = {
   easy: {
