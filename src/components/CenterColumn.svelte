@@ -20,8 +20,8 @@
     
     <!-- Lives Display (up to 2 rows of 5 hearts each) -->
     <div class="lives-section">
-        {#if $lives > 0}
-            {@const livesArray = Array.from({length: $lives}, (_, i) => i)}
+        {#if $lives && $lives > 0}
+            {@const livesArray = Array($lives).fill(0)}
             {@const firstRow = livesArray.slice(0, 5)}
             {@const secondRow = livesArray.slice(5, 10)}
             
