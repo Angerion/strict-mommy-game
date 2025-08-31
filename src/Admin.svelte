@@ -101,7 +101,7 @@
           disabled={!$gameRunning && !isPausedFromAdmin}
         >
           {#if isPausedFromAdmin}
-            <i class="fas fa-play"></i> Resume Game
+            <i class="fas fa-pause"></i> Game Paused
           {:else if $gameRunning}
             <i class="fas fa-pause"></i> Pause Game
           {:else}
@@ -456,6 +456,13 @@
   </div>
 </div>
 
+<!-- Floating Action Button for Resume Game -->
+{#if isPausedFromAdmin}
+  <button class="fab-resume" on:click={toggleGamePause} title="Resume Game">
+    <i class="fas fa-play"></i>
+  </button>
+{/if}
+
 <style>
   /* Game Control Section */
   .game-control-section {
@@ -778,6 +785,67 @@
 
     .remove-btn {
       align-self: flex-end;
+    }
+
+    .fab-resume {
+      bottom: 80px !important;
+      right: 20px !important;
+    }
+  }
+
+  /* Floating Action Button */
+  .fab-resume {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 
+      0 3px 5px -1px rgba(0, 0, 0, 0.2),
+      0 6px 10px 0 rgba(0, 0, 0, 0.14),
+      0 1px 18px 0 rgba(0, 0, 0, 0.12);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    animation: fabSlideIn 0.3s ease-out;
+  }
+
+  .fab-resume:hover {
+    background: #45a049;
+    box-shadow: 
+      0 5px 5px -3px rgba(0, 0, 0, 0.2),
+      0 8px 10px 1px rgba(0, 0, 0, 0.14),
+      0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    transform: scale(1.1);
+  }
+
+  .fab-resume:active {
+    box-shadow: 
+      0 7px 8px -4px rgba(0, 0, 0, 0.2),
+      0 12px 17px 2px rgba(0, 0, 0, 0.14),
+      0 5px 22px 4px rgba(0, 0, 0, 0.12);
+  }
+
+  .fab-resume i {
+    margin-left: 2px; /* Slight offset to center the play icon visually */
+  }
+
+  @keyframes fabSlideIn {
+    from {
+      transform: scale(0) rotate(-180deg);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
     }
   }
 </style>
