@@ -4,12 +4,15 @@
     import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon } from './stores.js';
 
     let gameLoop;
+    let millisecondLoop;
     let doorbellTimeout;
     let doorbellStartTime;
     let doorbellRemainingTime;
     let encounterTimeout;
     let wasRunning = false;
     let chaseMusic; // Will hold the current chase music audio object
+    let gameStartTime = 0;
+    let currentMilliseconds = 0;
     const replenishSound = new Audio('/sounds/replenish.mp3');
     const doorbellSound = new Audio('/sounds/doorbell.mp3');
     const reviveSound = new Audio('/sounds/revive.mp3');
@@ -30,12 +33,13 @@
     });
 
     // Create formatted time display (MM:SS:MS format)
-    const formattedTime = derived(gameTime, $gameTime => {
+    let formattedTime = '00:00:00';
+    $: {
         const minutes = Math.floor($gameTime / 60);
         const seconds = $gameTime % 60;
-        const milliseconds = 0; // Since we're tracking in full seconds
-        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
-    });
+        const milliseconds = Math.floor(currentMilliseconds / 10); // Convert to centiseconds (0-99)
+        formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+    }
 
     let previousHour = 0;
     inGameHour.subscribe(hour => {
@@ -232,12 +236,15 @@
         isReviving.set(false);
         bossAwake.set(false);
         bossEncounterActive.set(false);
+        gameStartTime = 0;
+        currentMilliseconds = 0;
         if (chaseMusic) {
             chaseMusic.pause();
             chaseMusic.currentTime = 0;
         }
         clearTimeout(encounterTimeout);
         clearTimeout(doorbellTimeout);
+        clearInterval(millisecondLoop);
         doorbellRemainingTime = null;
         meters.update(currentMeters => {
             return currentMeters.map(meter => ({ ...meter, value: 100 }));
@@ -251,6 +258,16 @@
 
                 // If resuming, use remaining time, otherwise schedule a new one
                 scheduleDoorbell(doorbellRemainingTime);
+
+                // Set the game start time for millisecond tracking
+                if (gameStartTime === 0) {
+                    gameStartTime = Date.now();
+                }
+
+                // Start millisecond counter
+                millisecondLoop = setInterval(() => {
+                    currentMilliseconds = (Date.now() - gameStartTime) % 1000;
+                }, 10); // Update every 10ms for smooth animation
 
                 gameLoop = setInterval(() => {
                     gameTime.update(t => t + 1);
@@ -280,6 +297,7 @@
             } else {
                 if ($bossEncounterActive && chaseMusic) chaseMusic.pause();
                 clearInterval(gameLoop);
+                clearInterval(millisecondLoop);
 
                 // Pause the doorbell timer
                 if (doorbellTimeout) {
@@ -293,6 +311,7 @@
         return () => {
             unsubscribeGameRunning();
             clearInterval(gameLoop);
+            clearInterval(millisecondLoop);
             clearTimeout(doorbellTimeout);
             clearTimeout(encounterTimeout);
         };
@@ -322,7 +341,7 @@
     </div>
     
     <div class="game-stats">
-        <div id="time-elapsed">Time: <span class="fixed-width-time">{$formattedTime}</span></div>
+        <div id="time-elapsed">Time: <span class="fixed-width-time">{formattedTime}</span></div>
         <div id="lives-container">
             {#each Array($lives) as _}
                 <i class="fas fa-heart"></i>
