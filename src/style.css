@@ -230,6 +230,12 @@ body {
     pointer-events: none;
 }
 
+.consumable-count {
+    font-size: 0.8em;
+    color: #666;
+    margin-left: 5px;
+}
+
 progress {
     width: 100%;
     height: 47px;

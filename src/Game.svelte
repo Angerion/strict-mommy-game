@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { derived } from 'svelte/store';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, consumables } from './stores.js';
 
     let gameLoop;
     let doorbellTimeout;
@@ -126,14 +126,42 @@
     }
 
     function replenish(meterId) {
-        meters.update(currentMeters => {
-            const meter = currentMeters.find(m => m.id === meterId);
-            if (meter) {
-                meter.value = Math.min(100, meter.value + meter.replenish);
-            }
-            return currentMeters;
-        });
-        replenishSound.play();
+        // Check if this meter has consumables and if any are available
+        if (meterId === 'oxygen' && $consumables[meterId] && $consumables[meterId].count > 0) {
+            // Use consumable for oxygen meter
+            consumables.update(currentConsumables => {
+                const consumable = { ...currentConsumables[meterId] };
+                if (consumable.count > 0) {
+                    consumable.count--;
+                    return {
+                        ...currentConsumables,
+                        [meterId]: consumable
+                    };
+                }
+                return currentConsumables;
+            });
+            
+            // Restore meter to full (100%) using consumable
+            meters.update(currentMeters => {
+                const meter = currentMeters.find(m => m.id === meterId);
+                if (meter) {
+                    meter.value = 100; // Full restoration with consumable
+                }
+                return currentMeters;
+            });
+            replenishSound.play();
+        } else if (meterId !== 'oxygen') {
+            // Use normal replenish for non-oxygen meters
+            meters.update(currentMeters => {
+                const meter = currentMeters.find(m => m.id === meterId);
+                if (meter) {
+                    meter.value = Math.min(100, meter.value + meter.replenish);
+                }
+                return currentMeters;
+            });
+            replenishSound.play();
+        }
+        // If oxygen meter has no consumables left, do nothing (no sound/effect)
     }
 
     function handleKeydown(e, meterId) {
@@ -333,7 +361,12 @@
     <div class="meter" role="button" tabindex="0" on:click={() => replenish(meter.id)} on:keydown={(e) => handleKeydown(e, meter.id)}>
         <div class="progress-wrapper">
             <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
-            <span class="progress-label">{meter.name}</span>
+            <span class="progress-label">
+                {meter.name}
+                {#if meter.id === 'oxygen' && $consumables[meter.id]}
+                    <span class="consumable-count">({$consumables[meter.id].count} tanks)</span>
+                {/if}
+            </span>
         </div>
     </div>
     {/each}
