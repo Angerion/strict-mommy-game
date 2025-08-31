@@ -1,66 +1,31 @@
 import { writable } from 'svelte/store';
+import { defaultMeters, defaultSettings, getPresetConfig } from './gameConfig.js';
 
-  // Game State
-  export const gameTime = writable(0);
-  export const gameRunning = writable(false);
-  export const gameWon = writable(false);
-  export const isDown = writable(false);
-  export const isReviving = writable(false);
-  export const lives = writable(5);
-  export const npcStatus = writable('');
-  export const bossAwake = writable(false);
-  export const bossEncounterActive = writable(false);
+// Game State
+export const gameTime = writable(0);
+export const gameRunning = writable(false);
+export const gameWon = writable(false);
+export const isDown = writable(false);
+export const isReviving = writable(false);
+export const lives = writable(defaultSettings.startingLives);
+export const npcStatus = writable('');
+export const bossAwake = writable(false);
+export const bossEncounterActive = writable(false);
 
-  // Meters
-  export const meters = writable([
-    {
-      id: "hunger",
-      name: "Hunger",
-      value: 100,
-      rate: 0.8,
-      replenish: 65,
-      color: "linear-gradient(to right, #FF9800, #FFB74D)",
-    },
-    {
-      id: "thirst",
-      name: "Thirst",
-      value: 100,
-      rate: 1,
-      replenish: 45,
-      color: "linear-gradient(to right, #2196F3, #03A9F4)",
-    },
-    {
-      id: "cleanliness",
-      name: "Cleanliness",
-      value: 100,
-      rate: 0.4,
-      replenish: 100,
-      color: "linear-gradient(to right, #795548, #A1887F)",
-    },
-    {
-      id: "oxygen",
-      name: "Oxygen",
-      value: 100,
-      rate: 0.3,
-      replenish: 100,
-      color: "linear-gradient(to right, #B0C4DE, #87CEEB)",
-    },
-    {
-      id: "energy",
-      name: "Energy",
-      value: 100,
-      rate: 0.5,
-      replenish: 50,
-      color: "linear-gradient(to right, #f0ff22ff, #a0ab0dff)",
-    },
-  ]);
+// Current difficulty preset
+export const currentPreset = writable('normal');
 
-  // General game settings
-  export const settings = writable({
-    startingLives: 3,
-    doorbellMinTime: 60,
-    doorbellMaxTime: 90,
-    gameLengthMinutes: 15,
-    rustleMinPercent: 25,
-    rustleMaxPercent: 50
-  });
+// Meters - initialized with default configuration
+export const meters = writable([...defaultMeters]);
+
+// General game settings - initialized with default configuration
+export const settings = writable({...defaultSettings});
+
+// Function to apply a preset to the game
+export function applyPreset(presetKey) {
+  const config = getPresetConfig(presetKey);
+  currentPreset.set(presetKey);
+  settings.set({...config.settings});
+  meters.set([...config.meters]);
+  lives.set(config.settings.startingLives);
+}
