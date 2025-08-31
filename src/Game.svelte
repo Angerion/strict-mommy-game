@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { derived } from 'svelte/store';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, audioSettings } from './stores.js';
 
     let gameLoop;
     let millisecondLoop;
@@ -18,6 +18,32 @@
     const reviveSound = new Audio('/sounds/revive.mp3');
     const clockSound = new Audio('/sounds/grandfather_clock.mp3');
     const rustleSound = new Audio('/sounds/rustle.mp3');
+
+    // Function to apply audio settings to sound effects
+    function applyAudioSettings() {
+        if (!$audioSettings) return;
+        
+        const soundVolume = $audioSettings.muteSounds ? 0 : 
+            $audioSettings.masterVolume * $audioSettings.soundEffectsVolume;
+        
+        replenishSound.volume = soundVolume;
+        doorbellSound.volume = soundVolume;
+        reviveSound.volume = soundVolume;
+        clockSound.volume = soundVolume;
+        rustleSound.volume = soundVolume;
+        
+        // Also update chase music volume if it exists
+        if (chaseMusic) {
+            const musicVolume = $audioSettings.muteMusic ? 0 : 
+                $audioSettings.masterVolume * $audioSettings.musicVolume;
+            chaseMusic.volume = musicVolume;
+        }
+    }
+
+    // Apply audio settings whenever they change
+    $: if ($audioSettings) {
+        applyAudioSettings();
+    }
 
     // --- New Clock Logic ---
     const secondsPerGameHour = derived(settings, $settings => ($settings.gameLengthMinutes * 60) / 6);
@@ -132,6 +158,12 @@
         const trackNumber = Math.floor(Math.random() * 5) + 1;
         chaseMusic = new Audio(`/sounds/zombiechase${trackNumber}.mp3`);
         chaseMusic.loop = true;
+        
+        // Apply audio settings to chase music
+        const musicVolume = $audioSettings.muteMusic ? 0 : 
+            $audioSettings.masterVolume * $audioSettings.musicVolume;
+        chaseMusic.volume = musicVolume;
+        
         chaseMusic.play();
 
         encounterTimeout = setTimeout(dropAggro, 20000);

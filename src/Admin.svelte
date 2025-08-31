@@ -1,6 +1,6 @@
 <script>
-  import { settings, lives, gameTime, gameRunning, meters, currentPreset, applyPreset } from "./stores.js";
-  import { gamePresets, availablePresets, defaultSettings, defaultMeters } from "./gameConfig.js";
+  import { settings, lives, gameTime, gameRunning, meters, currentPreset, applyPreset, audioSettings, resetToDefaults, saveCurrentSettings } from "./stores.js";
+  import { gamePresets, availablePresets, defaultSettings, defaultMeters, defaultAudioSettings } from "./gameConfig.js";
   import Slider from "./Slider.svelte";
 
   let newMeterName = '';
@@ -58,6 +58,8 @@
     if ($gameRunning) {
       $gameRunning = false;
     }
+    // Save settings after applying
+    saveCurrentSettings();
     alert("Settings applied and game reset!");
   }
 
@@ -66,11 +68,9 @@
     alert(`Applied ${gamePresets[$currentPreset].name} preset!`);
   }
 
-  function resetToDefaults() {
+  function handleResetToDefaults() {
     if (confirm("Reset all settings to default values? This will overwrite current settings.")) {
-      $settings = {...defaultSettings};
-      $meters = [...defaultMeters];
-      $lives = defaultSettings.startingLives;
+      resetToDefaults();
       alert("Settings reset to defaults!");
     }
   }
@@ -167,6 +167,62 @@
       tooltip="Maximum percentage chance for rustle events."
       color="#8D6E63"
     />
+  </fieldset>
+
+  <fieldset>
+    <legend>🔊 Audio Settings</legend>
+    
+    <Slider
+      bind:value={$audioSettings.masterVolume}
+      min={0}
+      max={1}
+      step={0.1}
+      label="Master Volume"
+      emoji="🔊"
+      unit=""
+      tooltip="Overall volume for all game audio."
+      color="#4CAF50"
+    />
+
+    <Slider
+      bind:value={$audioSettings.soundEffectsVolume}
+      min={0}
+      max={1}
+      step={0.1}
+      label="Sound Effects Volume"
+      emoji="🔔"
+      unit=""
+      tooltip="Volume for game sound effects (replenish, doorbell, etc.)."
+      color="#FF9800"
+    />
+
+    <Slider
+      bind:value={$audioSettings.musicVolume}
+      min={0}
+      max={1}
+      step={0.1}
+      label="Music Volume"
+      emoji="🎵"
+      unit=""
+      tooltip="Volume for background music and chase music."
+      color="#9C27B0"
+    />
+
+    <div class="setting">
+      <label class="checkbox-label">
+        <input type="checkbox" bind:checked={$audioSettings.muteSounds} />
+        <span class="checkmark"></span>
+        🔇 Mute Sound Effects
+      </label>
+    </div>
+
+    <div class="setting">
+      <label class="checkbox-label">
+        <input type="checkbox" bind:checked={$audioSettings.muteMusic} />
+        <span class="checkmark"></span>
+        🔇 Mute Music
+      </label>
+    </div>
   </fieldset>
 
   <fieldset>
@@ -330,7 +386,7 @@
   </fieldset>
 
   <div class="admin-actions">
-    <button on:click={resetToDefaults} class="reset-btn">🔄 Reset to Defaults</button>
+    <button on:click={handleResetToDefaults} class="reset-btn">🔄 Reset to Defaults</button>
     <button on:click={applySettings} class="apply-btn">✅ Apply Settings & Reset Game</button>
   </div>
 </div>
