@@ -57,6 +57,18 @@ body {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    min-height: 100px; /* Fixed height to prevent shifting */
+}
+
+.left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 120px; /* Fixed width to maintain layout */
+}
+
+.right-controls {
+    justify-content: flex-end;
 }
 
 .encounter-buttons {
@@ -66,6 +78,8 @@ body {
 
 .game-stats {
     text-align: center;
+    flex-grow: 1;
+    margin: 0 20px;
 }
 
 #lives-container {
@@ -108,8 +122,6 @@ body {
     color: white;
     background-color: #8D6E63; /* Brown Grey */
     transition: background-color 0.3s;
-    margin-left: -60px; /* Adjust to position next to play/pause */
-    margin-right: 20px;
 }
 
 #damage-btn, #drop-aggro-btn {
@@ -148,11 +160,39 @@ body {
 
 .in-game-clock {
     text-align: center;
+    margin-bottom: 20px;
+}
+
+.clock-frame {
+    display: inline-block;
+    border: 3px solid #333;
+    border-radius: 8px;
+    padding: 10px 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.clock-hour {
     font-size: 3em;
     font-weight: bold;
     color: #333;
-    margin-bottom: 20px;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.clock-period {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #666;
+    text-align: center;
+}
+
+.fixed-width-time {
+    font-family: 'Courier New', monospace;
+    min-width: 80px;
+    display: inline-block;
+    text-align: left;
 }
 
 .meter {
@@ -161,6 +201,13 @@ body {
     align-items: center;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+}
+
+.meter-icon {
+    font-size: 1.5em;
+    margin-right: 10px;
+    min-width: 30px;
+    text-align: center;
 }
 
 .meter:hover {

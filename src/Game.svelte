@@ -25,8 +25,16 @@
     });
 
     const displayHour = derived(inGameHour, $inGameHour => {
-        if ($inGameHour >= 6) return '6 AM';
-        return `${$inGameHour} AM`;
+        if ($inGameHour >= 6) return { hour: '6', period: 'AM' };
+        return { hour: $inGameHour.toString().padStart(2, '0'), period: 'AM' };
+    });
+
+    // Create formatted time display (MM:SS:MS format)
+    const formattedTime = derived(gameTime, $gameTime => {
+        const minutes = Math.floor($gameTime / 60);
+        const seconds = $gameTime % 60;
+        const milliseconds = 0; // Since we're tracking in full seconds
+        return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
     });
 
     let previousHour = 0;
@@ -302,16 +310,19 @@
 {/if}
 
 <div class="game-controls">
-    <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving || $gameWon}>
-        <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
-    </button>
-    {#if $gameRunning && !$bossAwake && !$bossEncounterActive}
-        <button id="rustle-btn" on:click={rustle}>
-            <i class="fas fa-wind"></i>
+    <div class="left-controls">
+        <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving || $gameWon}>
+            <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
         </button>
-    {/if}
+        {#if $gameRunning && !$bossAwake && !$bossEncounterActive}
+            <button id="rustle-btn" on:click={rustle}>
+                <i class="fas fa-wind"></i>
+            </button>
+        {/if}
+    </div>
+    
     <div class="game-stats">
-        <div id="time-elapsed">Time: {$gameTime}s</div>
+        <div id="time-elapsed">Time: <span class="fixed-width-time">{$formattedTime}</span></div>
         <div id="lives-container">
             {#each Array($lives) as _}
                 <i class="fas fa-heart"></i>
@@ -319,29 +330,54 @@
         </div>
         <div id="npc-status">{$npcStatus}</div>
     </div>
-    {#if $bossAwake && !$bossEncounterActive}
-        <button id="damage-btn" class="start-encounter" on:click={startBossEncounter} disabled={$gameWon}>
-            <i class="fas fa-khanda"></i>
-        </button>
-    {:else if $bossEncounterActive}
-        <div class="encounter-buttons">
-            <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving || $gameWon}>
-                <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
+    
+    <div class="right-controls">
+        {#if $bossAwake && !$bossEncounterActive}
+            <button id="damage-btn" class="start-encounter" on:click={startBossEncounter} disabled={$gameWon}>
+                <i class="fas fa-khanda"></i>
             </button>
-            <button id="drop-aggro-btn" on:click={dropAggro} disabled={$gameWon}>
-                <i class="fas fa-shield-alt"></i>
-            </button>
-        </div>
-    {/if}
+        {:else if $bossEncounterActive}
+            <div class="encounter-buttons">
+                <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving || $gameWon}>
+                    <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
+                </button>
+                <button id="drop-aggro-btn" on:click={dropAggro} disabled={$gameWon}>
+                    <i class="fas fa-shield-alt"></i>
+                </button>
+            </div>
+        {/if}
+    </div>
 </div>
 
 <div class="in-game-clock">
-    {$displayHour}
+    <div class="clock-frame">
+        <div class="clock-hour">{$displayHour.hour}</div>
+        <div class="clock-period">{$displayHour.period}</div>
+    </div>
 </div>
 
 <div class="meters">
     {#each $meters as meter (meter.id)}
     <div class="meter" role="button" tabindex="0" on:click={() => replenish(meter.id)} on:keydown={(e) => handleKeydown(e, meter.id)}>
+        <div class="meter-icon">
+            {#if meter.consumable.enabled && meter.consumable.icon}
+                {meter.consumable.icon}
+            {:else}
+                {#if meter.id === 'oxygen'}
+                    🫁
+                {:else if meter.id === 'hunger'}
+                    🍎
+                {:else if meter.id === 'thirst'}
+                    💧
+                {:else if meter.id === 'energy'}
+                    ⚡
+                {:else if meter.id === 'sanity'}
+                    🧠
+                {:else}
+                    ⭕
+                {/if}
+            {/if}
+        </div>
         <div class="progress-wrapper">
             <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
             <span class="progress-label">
