@@ -34,8 +34,10 @@
                         {meter.name}
                     </span>
                     {#if meter.consumable.enabled}
-                        <span class="consumable-count">
-                            {meter.consumable.icon} {meter.consumable.count}
+                        <span class="consumable-icons">
+                            {#each Array(meter.consumable.count).fill(0) as _}
+                                <span class="consumable-icon">{meter.consumable.icon}</span>
+                            {/each}
                         </span>
                     {/if}
                 </div>
@@ -119,13 +121,16 @@
         text-align: center;
     }
 
-    .consumable-count {
+    .consumable-icons {
+        display: flex;
+        gap: 2px;
+        align-items: center;
+    }
+
+    .consumable-icon {
         font-size: 12px;
-        background-color: #6c757d;
-        color: white;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-weight: normal;
+        display: inline-block;
+        opacity: 0.9;
     }
 
     progress {

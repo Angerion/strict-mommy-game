@@ -27,14 +27,14 @@
             
             <div class="lives-row">
                 {#each firstRow as _}
-                    <i class="fas fa-heart"></i>
+                    <span class="heart-icon">❤️</span>
                 {/each}
             </div>
             
             {#if secondRow.length > 0}
                 <div class="lives-row">
                     {#each secondRow as _}
-                        <i class="fas fa-heart"></i>
+                        <span class="heart-icon">❤️</span>
                     {/each}
                 </div>
             {/if}
@@ -112,10 +112,10 @@
         justify-content: center;
     }
 
-    .lives-row .fa-heart {
+    .heart-icon {
         font-size: 24px;
-        color: #e74c3c;
         margin: 0 2px;
+        display: inline-block;
     }
 
     .timer-section {
@@ -180,7 +180,7 @@
             font-size: 0.9em;
         }
 
-        .lives-row .fa-heart {
+        .heart-icon {
             font-size: 20px;
             margin: 0 1px;
         }
