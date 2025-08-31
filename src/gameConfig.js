@@ -55,6 +55,15 @@ export const defaultSettings = {
   rustleMaxPercent: 50
 };
 
+// Default consumables configuration
+export const defaultConsumables = {
+  oxygen: {
+    name: "Oxygen Tank",
+    count: 4, // Default for normal mode
+    restoreAmount: 100 // 100% restoration
+  }
+};
+
 // Game difficulty presets
 export const gamePresets = {
   easy: {
@@ -71,6 +80,13 @@ export const gamePresets = {
     meterAdjustments: {
       rateMultiplier: 0.805,  // 30% slower decay
       replenishMultiplier: 1.3  // 30% more replenish
+    },
+    consumables: {
+      oxygen: {
+        name: "Oxygen Tank",
+        count: 5,
+        restoreAmount: 100
+      }
     }
   },
   normal: {
@@ -80,6 +96,13 @@ export const gamePresets = {
     meterAdjustments: {
       rateMultiplier: 1.15,
       replenishMultiplier: 1.0
+    },
+    consumables: {
+      oxygen: {
+        name: "Oxygen Tank",
+        count: 4,
+        restoreAmount: 100
+      }
     }
   },
   hard: {
@@ -96,6 +119,13 @@ export const gamePresets = {
     meterAdjustments: {
       rateMultiplier: 1.61,  // 40% faster decay
       replenishMultiplier: 0.8  // 20% less replenish
+    },
+    consumables: {
+      oxygen: {
+        name: "Oxygen Tank",
+        count: 3,
+        restoreAmount: 100
+      }
     }
   }
 };
@@ -117,11 +147,16 @@ export function applyPresetToMeters(meters, presetKey) {
 // Get preset configuration
 export function getPresetConfig(presetKey) {
   const preset = gamePresets[presetKey];
-  if (!preset) return { settings: defaultSettings, meters: defaultMeters };
+  if (!preset) return { 
+    settings: defaultSettings, 
+    meters: defaultMeters,
+    consumables: defaultConsumables
+  };
   
   return {
     settings: preset.settings,
-    meters: applyPresetToMeters(defaultMeters, presetKey)
+    meters: applyPresetToMeters(defaultMeters, presetKey),
+    consumables: preset.consumables || defaultConsumables
   };
 }
 
