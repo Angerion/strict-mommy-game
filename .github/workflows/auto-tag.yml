@@ -1,0 +1,88 @@
+name: Auto Tag on Version Change
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package.json'
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Fetch current and previous commit
+
+      - name: Get current version
+        id: current-version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+
+      - name: Get previous version
+        id: previous-version
+        run: |
+          # Check if this is the first commit
+          if git rev-parse HEAD^ >/dev/null 2>&1; then
+            # Get package.json from previous commit
+            PREV_VERSION=$(git show HEAD^:package.json | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8')).version")
+            echo "version=$PREV_VERSION" >> $GITHUB_OUTPUT
+            echo "Previous version: $PREV_VERSION"
+          else
+            # First commit, no previous version
+            echo "version=" >> $GITHUB_OUTPUT
+            echo "First commit detected, no previous version"
+          fi
+
+      - name: Check if tag already exists
+        id: check-tag
+        run: |
+          NEW_VERSION="${{ steps.current-version.outputs.version }}"
+          if git rev-parse "v$NEW_VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v$NEW_VERSION already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v$NEW_VERSION does not exist"
+          fi
+
+      - name: Compare versions and create tag
+        if: |
+          steps.current-version.outputs.version != steps.previous-version.outputs.version &&
+          steps.check-tag.outputs.exists == 'false'
+        run: |
+          NEW_VERSION="${{ steps.current-version.outputs.version }}"
+          OLD_VERSION="${{ steps.previous-version.outputs.version }}"
+          
+          if [ -n "$OLD_VERSION" ]; then
+            echo "Version changed from $OLD_VERSION to $NEW_VERSION"
+          else
+            echo "Setting initial version to $NEW_VERSION"
+          fi
+          
+          # Create and push tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+          git push origin "v$NEW_VERSION"
+          
+          echo "Created and pushed tag v$NEW_VERSION"
+
+      - name: Create GitHub Release
+        if: |
+          steps.current-version.outputs.version != steps.previous-version.outputs.version &&
+          steps.check-tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.current-version.outputs.version }}
+          name: Release v${{ steps.current-version.outputs.version }}
+          body: |
+            Automatic release for version ${{ steps.current-version.outputs.version }}
+            
+            ${{ steps.previous-version.outputs.version && format('Changes:\n- Version updated from {0} to {1}', steps.previous-version.outputs.version, steps.current-version.outputs.version) || format('Initial release: {0}', steps.current-version.outputs.version) }}
+          draft: false
+          prerelease: false
