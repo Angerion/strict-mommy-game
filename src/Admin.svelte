@@ -32,6 +32,13 @@
       rate: newMeterRate,
       replenish: newMeterReplenish,
       color: newMeterColor,
+      consumable: {
+        enabled: false,
+        name: "",
+        icon: "",
+        count: 0,
+        restoreAmount: 100
+      }
     };
     $meters = [...$meters, newMeter];
     newMeterName = "";
@@ -199,6 +206,79 @@
             color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
             showMinMax={false}
           />
+
+          <!-- Consumable Configuration -->
+          <div class="consumable-config">
+            <h5 class="consumable-title">🎒 Consumable Configuration</h5>
+            <div class="setting">
+              <label class="checkbox-label">
+                <input 
+                  type="checkbox" 
+                  bind:checked={meter.consumable.enabled}
+                  on:change={() => {
+                    if (!meter.consumable.enabled) {
+                      meter.consumable.name = "";
+                      meter.consumable.icon = "";
+                      meter.consumable.count = 0;
+                    }
+                    $meters = $meters; // Trigger reactivity
+                  }}
+                />
+                <span class="checkmark"></span>
+                Enable Consumables
+              </label>
+            </div>
+            
+            {#if meter.consumable.enabled}
+              <div class="consumable-details">
+                <div class="setting">
+                  <label for="consumable-name-{meter.id}">📝 Consumable Name:</label>
+                  <input 
+                    type="text" 
+                    id="consumable-name-{meter.id}"
+                    bind:value={meter.consumable.name}
+                    placeholder="e.g., Oxygen Tank"
+                  />
+                </div>
+                
+                <div class="setting">
+                  <label for="consumable-icon-{meter.id}">🎭 Icon (emoji):</label>
+                  <input 
+                    type="text" 
+                    id="consumable-icon-{meter.id}"
+                    bind:value={meter.consumable.icon}
+                    placeholder="e.g., 🫁"
+                    maxlength="4"
+                  />
+                </div>
+                
+                <Slider
+                  bind:value={meter.consumable.count}
+                  min={0}
+                  max={10}
+                  step={1}
+                  label="Count"
+                  emoji="🔢"
+                  tooltip="Number of consumables available for this meter."
+                  color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+                  showMinMax={false}
+                />
+                
+                <Slider
+                  bind:value={meter.consumable.restoreAmount}
+                  min={50}
+                  max={100}
+                  step={5}
+                  label="Restore Amount"
+                  emoji="💯"
+                  unit="%"
+                  tooltip="How much the consumable restores (usually 100%)."
+                  color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+                  showMinMax={false}
+                />
+              </div>
+            {/if}
+          </div>
         </div>
       </div>
     {/each}
@@ -287,6 +367,44 @@
   .meter-sliders {
     display: grid;
     gap: 0.5rem;
+  }
+  
+  .consumable-config {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f5f5f5;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .consumable-title {
+    margin: 0 0 1rem 0;
+    font-size: 1em;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .consumable-details {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.2);
+  }
+  
+  .checkmark {
+    margin-left: 0.25rem;
   }
   
   .remove-btn {

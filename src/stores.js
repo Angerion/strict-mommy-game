@@ -21,11 +21,6 @@ export const meters = writable([...defaultMeters]);
 // General game settings - initialized with default configuration
 export const settings = writable({...defaultSettings});
 
-// Consumables - track available consumable items per meter
-// Initialize with normal preset consumables
-const normalConfig = getPresetConfig('normal');
-export const consumables = writable(normalConfig.consumables || {});
-
 // Function to apply a preset to the game
 export function applyPreset(presetKey) {
   const config = getPresetConfig(presetKey);
@@ -33,8 +28,4 @@ export function applyPreset(presetKey) {
   settings.set({...config.settings});
   meters.set([...config.meters]);
   lives.set(config.settings.startingLives);
-  // Initialize consumables from preset
-  if (config.consumables) {
-    consumables.set({...config.consumables});
-  }
 }

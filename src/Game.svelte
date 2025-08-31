@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { derived } from 'svelte/store';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, consumables } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon } from './stores.js';
 
     let gameLoop;
     let doorbellTimeout;
@@ -126,42 +126,25 @@
     }
 
     function replenish(meterId) {
-        // Check if this meter has consumables and if any are available
-        if ($consumables[meterId] && $consumables[meterId].count > 0) {
-            // Use consumable for this meter
-            consumables.update(currentConsumables => {
-                const consumable = { ...currentConsumables[meterId] };
-                if (consumable.count > 0) {
-                    consumable.count--;
-                    return {
-                        ...currentConsumables,
-                        [meterId]: consumable
-                    };
-                }
-                return currentConsumables;
-            });
+        meters.update(currentMeters => {
+            const meter = currentMeters.find(m => m.id === meterId);
+            if (!meter) return currentMeters;
+
+            // Check if this meter has consumables enabled and available
+            if (meter.consumable.enabled && meter.consumable.count > 0) {
+                // Use consumable - restore to full and decrement count
+                meter.value = 100;
+                meter.consumable.count--;
+                replenishSound.play();
+            } else if (!meter.consumable.enabled) {
+                // Use normal replenish for meters without consumables
+                meter.value = Math.min(100, meter.value + meter.replenish);
+                replenishSound.play();
+            }
+            // If meter has consumables enabled but none are left, do nothing (no sound/effect)
             
-            // Restore meter to full (100%) using consumable
-            meters.update(currentMeters => {
-                const meter = currentMeters.find(m => m.id === meterId);
-                if (meter) {
-                    meter.value = 100; // Full restoration with consumable
-                }
-                return currentMeters;
-            });
-            replenishSound.play();
-        } else if (!$consumables[meterId]) {
-            // Use normal replenish for meters without consumables
-            meters.update(currentMeters => {
-                const meter = currentMeters.find(m => m.id === meterId);
-                if (meter) {
-                    meter.value = Math.min(100, meter.value + meter.replenish);
-                }
-                return currentMeters;
-            });
-            replenishSound.play();
-        }
-        // If meter has consumables but none are left, do nothing (no sound/effect)
+            return currentMeters;
+        });
     }
 
     function handleKeydown(e, meterId) {
@@ -363,9 +346,9 @@
             <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
             <span class="progress-label">
                 {meter.name}
-                {#if $consumables[meter.id]}
+                {#if meter.consumable.enabled}
                     <span class="consumable-count">
-                        {$consumables[meter.id].icon} {$consumables[meter.id].count}
+                        {meter.consumable.icon} {meter.consumable.count}
                     </span>
                 {/if}
             </span>
