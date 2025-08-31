@@ -228,12 +228,25 @@ body {
     font-weight: bold;
     text-shadow: 0 0 2px #fff;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
 }
 
 .consumable-count {
-    font-size: 0.8em;
-    color: #666;
-    margin-left: 5px;
+    font-size: 0.85em;
+    color: #444;
+    margin-left: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px 6px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
 }
 
 progress {
@@ -358,4 +371,41 @@ button {
     margin-top: 20px;
     font-weight: bold;
     color: red;
+}
+
+/* Responsive design for meters */
+@media (max-width: 768px) {
+    .progress-label {
+        font-size: 0.9em;
+    }
+    
+    .consumable-count {
+        font-size: 0.75em;
+        padding: 1px 4px;
+        margin-left: 6px;
+    }
+    
+    progress {
+        height: 42px;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-label {
+        font-size: 0.8em;
+    }
+    
+    .consumable-count {
+        font-size: 0.7em;
+        padding: 1px 3px;
+        margin-left: 4px;
+    }
+    
+    progress {
+        height: 38px;
+    }
+    
+    .meter {
+        margin-bottom: 12px;
+    }
 }
