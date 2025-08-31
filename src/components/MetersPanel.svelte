@@ -106,22 +106,23 @@
     }
 
     .progress-label-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
+        position: relative;
         width: 100%;
+        margin-bottom: 5px;
     }
 
     .progress-label-centered {
         font-size: 14px;
         font-weight: 600;
         color: #495057;
-        flex: 1;
         text-align: center;
+        width: 100%;
     }
 
     .consumable-icons {
+        position: absolute;
+        top: 0;
+        right: 0;
         display: flex;
         gap: 2px;
         align-items: center;
