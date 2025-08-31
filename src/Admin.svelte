@@ -3,6 +3,8 @@
   import { gamePresets, availablePresets, defaultSettings, defaultMeters, defaultAudioSettings } from "./gameConfig.js";
   import Slider from "./Slider.svelte";
 
+  export let isPausedFromAdmin = false;
+
   let newMeterName = '';
   let newMeterRate = 1;
   let newMeterReplenish = 50;
@@ -46,6 +48,16 @@
     newMeterReplenish = 50;
   }
 
+  function toggleGamePause() {
+    if ($gameRunning) {
+      $gameRunning = false;
+      isPausedFromAdmin = true;
+    } else if (isPausedFromAdmin) {
+      $gameRunning = true;
+      isPausedFromAdmin = false;
+    }
+  }
+
   function removeMeter(id) {
     $meters = $meters.filter((m) => m.id !== id);
   }
@@ -77,6 +89,59 @@
 </script>
 
 <div class="admin-settings">
+  <!-- Game Control Section -->
+  <fieldset>
+    <legend>🎮 Game Control</legend>
+    <div class="game-control-section">
+      <div class="pause-control">
+        <button 
+          class="pause-btn" 
+          class:active={isPausedFromAdmin}
+          on:click={toggleGamePause}
+          disabled={!$gameRunning && !isPausedFromAdmin}
+        >
+          {#if isPausedFromAdmin}
+            <i class="fas fa-play"></i> Resume Game
+          {:else if $gameRunning}
+            <i class="fas fa-pause"></i> Pause Game
+          {:else}
+            <i class="fas fa-pause"></i> Game Not Running
+          {/if}
+        </button>
+      </div>
+      
+      {#if isPausedFromAdmin}
+        <div class="game-stats-display">
+          <h4>Game Statistics</h4>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-label">Lives:</span>
+              <span class="stat-value">{$lives}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Game Time:</span>
+              <span class="stat-value">{Math.floor($gameTime / 60)}:{($gameTime % 60).toString().padStart(2, '0')}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Meters:</span>
+              <span class="stat-value">{$meters.length}</span>
+            </div>
+          </div>
+          
+          <div class="meters-status">
+            <h5>Current Meter Values:</h5>
+            {#each $meters as meter}
+              <div class="meter-stat">
+                <span class="meter-name">{meter.name}:</span>
+                <span class="meter-value">{meter.value.toFixed(1)}%</span>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+  </fieldset>
+
   <fieldset>
     <legend>Difficulty Presets</legend>
     <div class="setting">
@@ -392,6 +457,119 @@
 </div>
 
 <style>
+  /* Game Control Section */
+  .game-control-section {
+    margin-bottom: 1rem;
+  }
+
+  .pause-control {
+    margin-bottom: 1rem;
+  }
+
+  .pause-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #007bff;
+    color: white;
+  }
+
+  .pause-btn:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-1px);
+  }
+
+  .pause-btn.active {
+    background: #28a745;
+  }
+
+  .pause-btn.active:hover {
+    background: #218838;
+  }
+
+  .pause-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .game-stats-display {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+  }
+
+  .game-stats-display h4 {
+    margin: 0 0 1rem 0;
+    color: #495057;
+    font-size: 1.1rem;
+  }
+
+  .game-stats-display h5 {
+    margin: 1rem 0 0.5rem 0;
+    color: #495057;
+    font-size: 1rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+  }
+
+  .stat-label {
+    font-weight: 600;
+    color: #6c757d;
+  }
+
+  .stat-value {
+    color: #495057;
+    font-weight: 500;
+  }
+
+  .meters-status {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1rem;
+  }
+
+  .meter-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+    background: white;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  .meter-name {
+    font-weight: 500;
+    color: #6c757d;
+  }
+
+  .meter-value {
+    color: #495057;
+    font-weight: 600;
+  }
+
   .preset-description {
     font-style: italic;
     color: #666;
