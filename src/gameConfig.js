@@ -10,6 +10,13 @@ export const defaultMeters = [
     rate: 0.8,
     replenish: 65,
     color: "linear-gradient(to right, #FF9800, #FFB74D)",
+    consumable: {
+      enabled: false,
+      name: "",
+      icon: "",
+      count: 0,
+      restoreAmount: 100
+    }
   },
   {
     id: "thirst",
@@ -18,6 +25,13 @@ export const defaultMeters = [
     rate: 1,
     replenish: 45,
     color: "linear-gradient(to right, #2196F3, #03A9F4)",
+    consumable: {
+      enabled: false,
+      name: "",
+      icon: "",
+      count: 0,
+      restoreAmount: 100
+    }
   },
   {
     id: "cleanliness",
@@ -26,6 +40,13 @@ export const defaultMeters = [
     rate: 0.4,
     replenish: 100,
     color: "linear-gradient(to right, #795548, #A1887F)",
+    consumable: {
+      enabled: false,
+      name: "",
+      icon: "",
+      count: 0,
+      restoreAmount: 100
+    }
   },
   {
     id: "oxygen",
@@ -34,6 +55,13 @@ export const defaultMeters = [
     rate: 0.3,
     replenish: 100,
     color: "linear-gradient(to right, #B0C4DE, #87CEEB)",
+    consumable: {
+      enabled: true,
+      name: "Oxygen Tank",
+      icon: "🫁",
+      count: 4,
+      restoreAmount: 100
+    }
   },
   {
     id: "energy",
@@ -42,6 +70,13 @@ export const defaultMeters = [
     rate: 0.5,
     replenish: 50,
     color: "linear-gradient(to right, #f0ff22ff, #a0ab0dff)",
+    consumable: {
+      enabled: false,
+      name: "",
+      icon: "",
+      count: 0,
+      restoreAmount: 100
+    }
   },
 ];
 
@@ -53,22 +88,6 @@ export const defaultSettings = {
   gameLengthMinutes: 15,
   rustleMinPercent: 25,
   rustleMaxPercent: 50
-};
-
-// Default consumables configuration
-export const defaultConsumables = {
-  oxygen: {
-    name: "Oxygen Tank",
-    icon: "🫁", // Lungs emoji for oxygen
-    count: 4, // Default for normal mode
-    restoreAmount: 100 // 100% restoration
-  },
-  energy: {
-    name: "Battery Pack",
-    icon: "🔋", // Battery emoji for energy
-    count: 3, // Default for normal mode
-    restoreAmount: 100 // 100% restoration
-  }
 };
 
 // Game difficulty presets
@@ -88,20 +107,7 @@ export const gamePresets = {
       rateMultiplier: 0.805,  // 30% slower decay
       replenishMultiplier: 1.3  // 30% more replenish
     },
-    consumables: {
-      oxygen: {
-        name: "Oxygen Tank",
-        icon: "🫁",
-        count: 5,
-        restoreAmount: 100
-      },
-      energy: {
-        name: "Battery Pack",
-        icon: "🔋",
-        count: 4,
-        restoreAmount: 100
-      }
-    }
+    oxygenConsumableCount: 5
   },
   normal: {
     name: "Normal Mode", 
@@ -111,20 +117,7 @@ export const gamePresets = {
       rateMultiplier: 1.15,
       replenishMultiplier: 1.0
     },
-    consumables: {
-      oxygen: {
-        name: "Oxygen Tank",
-        icon: "🫁",
-        count: 4,
-        restoreAmount: 100
-      },
-      energy: {
-        name: "Battery Pack",
-        icon: "🔋",
-        count: 3,
-        restoreAmount: 100
-      }
-    }
+    oxygenConsumableCount: 4
   },
   hard: {
     name: "Hard Mode",
@@ -141,20 +134,7 @@ export const gamePresets = {
       rateMultiplier: 1.61,  // 40% faster decay
       replenishMultiplier: 0.8  // 20% less replenish
     },
-    consumables: {
-      oxygen: {
-        name: "Oxygen Tank",
-        icon: "🫁",
-        count: 3,
-        restoreAmount: 100
-      },
-      energy: {
-        name: "Battery Pack",
-        icon: "🔋",
-        count: 2,
-        restoreAmount: 100
-      }
-    }
+    oxygenConsumableCount: 3
   }
 };
 
@@ -168,7 +148,11 @@ export function applyPresetToMeters(meters, presetKey) {
   return meters.map(meter => ({
     ...meter,
     rate: Math.round(meter.rate * rateMultiplier * 100) / 100,
-    replenish: Math.round(meter.replenish * replenishMultiplier)
+    replenish: Math.round(meter.replenish * replenishMultiplier),
+    consumable: meter.id === 'oxygen' ? {
+      ...meter.consumable,
+      count: preset.oxygenConsumableCount || meter.consumable.count
+    } : meter.consumable
   }));
 }
 
@@ -177,14 +161,12 @@ export function getPresetConfig(presetKey) {
   const preset = gamePresets[presetKey];
   if (!preset) return { 
     settings: defaultSettings, 
-    meters: defaultMeters,
-    consumables: defaultConsumables
+    meters: defaultMeters
   };
   
   return {
     settings: preset.settings,
-    meters: applyPresetToMeters(defaultMeters, presetKey),
-    consumables: preset.consumables || defaultConsumables
+    meters: applyPresetToMeters(defaultMeters, presetKey)
   };
 }
 
