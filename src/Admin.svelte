@@ -1,6 +1,7 @@
 <script>
   import { settings, lives, gameTime, gameRunning, meters, currentPreset, applyPreset } from "./stores.js";
-  import { gamePresets, availablePresets } from "./gameConfig.js";
+  import { gamePresets, availablePresets, defaultSettings, defaultMeters } from "./gameConfig.js";
+  import Slider from "./Slider.svelte";
 
   let newMeterName = '';
   let newMeterRate = 1;
@@ -57,6 +58,15 @@
     applyPreset($currentPreset);
     alert(`Applied ${gamePresets[$currentPreset].name} preset!`);
   }
+
+  function resetToDefaults() {
+    if (confirm("Reset all settings to default values? This will overwrite current settings.")) {
+      $settings = {...defaultSettings};
+      $meters = [...defaultMeters];
+      $lives = defaultSettings.startingLives;
+      alert("Settings reset to defaults!");
+    }
+  }
 </script>
 
 <div class="admin-settings">
@@ -74,111 +84,175 @@
   </fieldset>
 
   <fieldset>
-    <legend>General Settings</legend>
-    <div class="setting">
-      <label for="game-length">
-        Game Length (minutes):
-        <input type="number" bind:value={$settings.gameLengthMinutes} />
-      </label>
-    </div>
-    <div class="setting">
-      <label for="starting-lives">Starting Lives:</label>
-      <input
-        type="number"
-        id="starting-lives"
-        bind:value={$settings.startingLives}
-        min="1"
-        max="6"
-      />
-    </div>
-    <div class="setting">
-      <label for="doorbell-min-time">Min Time for Doorbell (seconds):</label>
-      <input
-        type="number"
-        id="doorbell-min-time"
-        bind:value={$settings.doorbellMinTime}
-      />
-    </div>
-    <div class="setting">
-      <label for="doorbell-max-time">Max Time for Doorbell (seconds):</label>
-      <input
-        type="number"
-        id="doorbell-max-time"
-        bind:value={$settings.doorbellMaxTime}
-      />
-    </div>
+    <legend>⚙️ General Settings</legend>
+    
+    <Slider
+      bind:value={$settings.startingLives}
+      min={1}
+      max={10}
+      step={1}
+      label="Starting Lives"
+      emoji="❤️"
+      tooltip="Number of lives player starts with. Lose a life when any meter reaches 0."
+      color="#f44336"
+    />
+
+    <Slider
+      bind:value={$settings.doorbellMinTime}
+      min={5}
+      max={300}
+      step={5}
+      label="Doorbell Min Time"
+      emoji="⏱️"
+      unit="s"
+      tooltip="Minimum time between doorbell events in seconds."
+      color="#2196F3"
+    />
+
+    <Slider
+      bind:value={$settings.doorbellMaxTime}
+      min={5}
+      max={300}
+      step={5}
+      label="Doorbell Max Time"
+      emoji="⏱️"
+      unit="s"
+      tooltip="Maximum time between doorbell events in seconds."
+      color="#2196F3"
+    />
+
+    <Slider
+      bind:value={$settings.gameLengthMinutes}
+      min={1}
+      max={30}
+      step={1}
+      label="Game Length"
+      emoji="⏲️"
+      unit=" min"
+      tooltip="Total duration of the game in minutes."
+      color="#9C27B0"
+    />
   </fieldset>
 
   <fieldset>
-    <legend>Game Rules</legend>
-    <label>
-      Game Length (minutes):
-      <input type="number" bind:value={$settings.gameLengthMinutes} />
-    </label>
-    <label>
-      Rustle Min %:
-      <input type="number" bind:value={$settings.rustleMinPercent} />
-    </label>
-    <label>
-      Rustle Max %:
-      <input type="number" bind:value={$settings.rustleMaxPercent} />
-    </label>
+    <legend>🍃 Rustle Settings</legend>
+    
+    <Slider
+      bind:value={$settings.rustleMinPercent}
+      min={5}
+      max={95}
+      step={5}
+      label="Rustle Min Percentage"
+      emoji="🍃"
+      unit="%"
+      tooltip="Minimum percentage chance for rustle events."
+      color="#8D6E63"
+    />
+
+    <Slider
+      bind:value={$settings.rustleMaxPercent}
+      min={5}
+      max={95}
+      step={5}
+      label="Rustle Max Percentage"
+      emoji="🍃"
+      unit="%"
+      tooltip="Maximum percentage chance for rustle events."
+      color="#8D6E63"
+    />
   </fieldset>
 
   <fieldset>
-    <legend>Meters</legend>
+    <legend>📊 Meters Configuration</legend>
     {#each $meters as meter (meter.id)}
-      <div class="meter-setting">
-        <span class="meter-name">{meter.name}</span>
-        <div class="meter-controls">
-          <div class="meter-inputs">
-            <label
-              ><span>Rate:</span>
-              <input type="number" bind:value={meter.rate} step="0.1" /></label
-            >
-            <label
-              ><span>Replenish:</span>
-              <input type="number" bind:value={meter.replenish} /></label
-            >
-          </div>
-          <button class="remove-btn" on:click={() => removeMeter(meter.id)}
-            ><i class="fas fa-trash"></i></button
-          >
+      <div class="meter-setting" style="border-left: 4px solid {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">
+        <div class="meter-header">
+          <h4 class="meter-name" style="color: {meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}">{meter.name}</h4>
+          <button class="remove-btn" on:click={() => removeMeter(meter.id)}>
+            🗑️
+          </button>
+        </div>
+        
+        <div class="meter-sliders">
+          <Slider
+            bind:value={meter.rate}
+            min={0.05}
+            max={2.00}
+            step={0.05}
+            label="Rate"
+            emoji="📊"
+            unit=" ticks/s"
+            tooltip="Rate at which this meter decreases per second."
+            color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+            showMinMax={false}
+          />
+
+          <Slider
+            bind:value={meter.replenish}
+            min={1}
+            max={100}
+            step={1}
+            label="Replenish"
+            emoji="🔄"
+            unit="%"
+            tooltip="Amount this meter replenishes when clicked."
+            color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
+            showMinMax={false}
+          />
         </div>
       </div>
     {/each}
   </fieldset>
 
   <fieldset>
-    <legend>Add New Meter</legend>
+    <legend>➕ Add New Meter</legend>
     <div class="setting">
-      <label for="new-meter-name">Name:</label>
+      <label for="new-meter-name">📝 Name:</label>
       <input type="text" id="new-meter-name" bind:value={newMeterName} />
     </div>
+    
+    <Slider
+      bind:value={newMeterRate}
+      min={0.05}
+      max={2.00}
+      step={0.05}
+      label="Rate"
+      emoji="📊"
+      unit=" ticks/s"
+      tooltip="Rate at which this meter decreases per second."
+      color="#4CAF50"
+      showMinMax={false}
+    />
+
+    <Slider
+      bind:value={newMeterReplenish}
+      min={1}
+      max={100}
+      step={1}
+      label="Replenish"
+      emoji="🔄"
+      unit="%"
+      tooltip="Amount this meter replenishes when clicked."
+      color="#4CAF50"
+      showMinMax={false}
+    />
+
     <div class="setting">
-      <label for="new-meter-rate">Rate:</label>
-      <input type="number" id="new-meter-rate" bind:value={newMeterRate} step="0.1" />
-    </div>
-    <div class="setting">
-      <label for="new-meter-replenish">Replenish:</label>
-      <input
-        type="number"
-        id="new-meter-replenish"
-        bind:value={newMeterReplenish}
-      />
-    </div>
-    <div class="setting">
-      <label for="new-meter-color">Color:</label>
+      <label for="new-meter-color">🎨 Color:</label>
       <select id="new-meter-color" bind:value={newMeterColor}>
         {#each colorOptions as color}
           <option value={color.value}>{color.name}</option>
         {/each}
       </select>
+      <div class="color-preview" style="background: {newMeterColor}"></div>
     </div>
-    <button on:click={addMeter}>Add Meter</button>
+    <button on:click={addMeter} class="add-meter-btn">➕ Add Meter</button>
   </fieldset>
 
-  <button on:click={applySettings}>Apply Settings & Reset Game</button>
+  <div class="admin-actions">
+    <button on:click={resetToDefaults} class="reset-btn">🔄 Reset to Defaults</button>
+    <button on:click={applySettings} class="apply-btn">✅ Apply Settings & Reset Game</button>
+  </div>
 </div>
 
 <style>
@@ -190,49 +264,50 @@
   }
   
   .meter-setting {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 8px;
+    background: #fafafa;
   }
-  
-  .meter-controls {
+
+  .meter-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1rem;
+    margin-bottom: 1rem;
   }
-  
-  .meter-inputs {
-    display: flex;
+
+  .meter-name {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+
+  .meter-sliders {
+    display: grid;
     gap: 0.5rem;
-  }
-  
-  .meter-inputs label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 0.8rem;
-  }
-  
-  .meter-inputs input {
-    width: 60px;
-    margin-top: 0.2rem;
   }
   
   .remove-btn {
     background: #f44336;
     color: white;
     border: none;
-    padding: 0.3rem 0.5rem;
-    border-radius: 3px;
+    padding: 0.5rem;
+    border-radius: 50%;
     cursor: pointer;
+    font-size: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
   }
   
   .remove-btn:hover {
     background: #d32f2f;
+    transform: scale(1.1);
   }
   
   .setting {
@@ -241,14 +316,116 @@
   
   .setting label {
     display: block;
-    margin-bottom: 0.3rem;
-    font-weight: bold;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
   }
   
   .setting input, .setting select {
     width: 100%;
-    padding: 0.4rem;
+    padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 3px;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .setting input:focus, .setting select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  }
+
+  .color-preview {
+    width: 100%;
+    height: 1.5rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+  }
+
+  .admin-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .reset-btn, .apply-btn, .add-meter-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .reset-btn {
+    background: #ff9800;
+    color: white;
+  }
+
+  .reset-btn:hover {
+    background: #f57c00;
+    transform: translateY(-2px);
+  }
+
+  .apply-btn {
+    background: #4CAF50;
+    color: white;
+    flex: 1;
+  }
+
+  .apply-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+  }
+
+  .add-meter-btn {
+    background: #2196F3;
+    color: white;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-meter-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+  }
+
+  fieldset {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background: #fff;
+  }
+
+  legend {
+    font-weight: 700;
+    padding: 0 1rem;
+    color: #333;
+    font-size: 1.1em;
+  }
+
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .admin-actions {
+      flex-direction: column;
+    }
+
+    .meter-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .remove-btn {
+      align-self: flex-end;
+    }
   }
 </style>
