@@ -127,8 +127,8 @@
 
     function replenish(meterId) {
         // Check if this meter has consumables and if any are available
-        if (meterId === 'oxygen' && $consumables[meterId] && $consumables[meterId].count > 0) {
-            // Use consumable for oxygen meter
+        if ($consumables[meterId] && $consumables[meterId].count > 0) {
+            // Use consumable for this meter
             consumables.update(currentConsumables => {
                 const consumable = { ...currentConsumables[meterId] };
                 if (consumable.count > 0) {
@@ -150,8 +150,8 @@
                 return currentMeters;
             });
             replenishSound.play();
-        } else if (meterId !== 'oxygen') {
-            // Use normal replenish for non-oxygen meters
+        } else if (!$consumables[meterId]) {
+            // Use normal replenish for meters without consumables
             meters.update(currentMeters => {
                 const meter = currentMeters.find(m => m.id === meterId);
                 if (meter) {
@@ -161,7 +161,7 @@
             });
             replenishSound.play();
         }
-        // If oxygen meter has no consumables left, do nothing (no sound/effect)
+        // If meter has consumables but none are left, do nothing (no sound/effect)
     }
 
     function handleKeydown(e, meterId) {
@@ -363,8 +363,10 @@
             <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
             <span class="progress-label">
                 {meter.name}
-                {#if meter.id === 'oxygen' && $consumables[meter.id]}
-                    <span class="consumable-count">({$consumables[meter.id].count} tanks)</span>
+                {#if $consumables[meter.id]}
+                    <span class="consumable-count">
+                        {$consumables[meter.id].icon} {$consumables[meter.id].count}
+                    </span>
                 {/if}
             </span>
         </div>

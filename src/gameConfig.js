@@ -59,7 +59,14 @@ export const defaultSettings = {
 export const defaultConsumables = {
   oxygen: {
     name: "Oxygen Tank",
+    icon: "🫁", // Lungs emoji for oxygen
     count: 4, // Default for normal mode
+    restoreAmount: 100 // 100% restoration
+  },
+  energy: {
+    name: "Battery Pack",
+    icon: "🔋", // Battery emoji for energy
+    count: 3, // Default for normal mode
     restoreAmount: 100 // 100% restoration
   }
 };
@@ -84,7 +91,14 @@ export const gamePresets = {
     consumables: {
       oxygen: {
         name: "Oxygen Tank",
+        icon: "🫁",
         count: 5,
+        restoreAmount: 100
+      },
+      energy: {
+        name: "Battery Pack",
+        icon: "🔋",
+        count: 4,
         restoreAmount: 100
       }
     }
@@ -100,7 +114,14 @@ export const gamePresets = {
     consumables: {
       oxygen: {
         name: "Oxygen Tank",
+        icon: "🫁",
         count: 4,
+        restoreAmount: 100
+      },
+      energy: {
+        name: "Battery Pack",
+        icon: "🔋",
+        count: 3,
         restoreAmount: 100
       }
     }
@@ -123,7 +144,14 @@ export const gamePresets = {
     consumables: {
       oxygen: {
         name: "Oxygen Tank",
+        icon: "🫁",
         count: 3,
+        restoreAmount: 100
+      },
+      energy: {
+        name: "Battery Pack",
+        icon: "🔋",
+        count: 2,
         restoreAmount: 100
       }
     }
