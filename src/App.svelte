@@ -42,7 +42,7 @@
   </div>
 
   <!-- Scrollable main content area -->
-  <div class="main-content">
+  <div class="main-content" class:game-active={activeTab === 'Game'}>
     {#if activeTab === 'Game'}
       <div class="tab-content">
         <Game bind:isPausedFromAdmin />
@@ -110,12 +110,20 @@
     padding: 0;
   }
 
+  .main-content.game-active {
+    overflow-y: hidden;
+  }
+
   .tab-content {
     padding: 15px;
     height: auto;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+  }
+
+  .main-content.game-active .tab-content {
+    height: 100%;
+    padding: 0;
   }
 
   /* Custom scrollbar */

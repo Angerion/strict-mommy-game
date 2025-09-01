@@ -379,41 +379,50 @@
 </div>
 {/if}
 
-<!-- Three Column Layout -->
-<div class="game-layout">
-    <LeftColumn
-        onStartGame={startGame}
-        onPauseGame={pauseGame}
-        onRustle={rustle}
-    />
+<div class="game-container">
+    <!-- Three Column Layout -->
+    <div class="game-layout">
+        <LeftColumn
+            onStartGame={startGame}
+            onPauseGame={pauseGame}
+            onRustle={rustle}
+        />
 
-    <CenterColumn
-        displayHour={$displayHour}
-        formattedTime={formattedTime}
-        currentMilliseconds={currentMilliseconds}
-    />
+        <CenterColumn
+            displayHour={$displayHour}
+            formattedTime={formattedTime}
+            currentMilliseconds={currentMilliseconds}
+        />
 
-    <RightColumn
-        onStartBossEncounter={startBossEncounter}
-        onDownPlayer={downPlayer}
-        onStartRevive={startRevive}
-        onDropAggro={dropAggro}
-    />
-</div>
+        <RightColumn
+            onStartBossEncounter={startBossEncounter}
+            onDownPlayer={downPlayer}
+            onStartRevive={startRevive}
+            onDropAggro={dropAggro}
+        />
+    </div>
 
-<!-- Meters Panel with Scrolling -->
-<div class="meters-wrapper">
-    <MetersPanel
-        onReplenish={replenish}
-        onHandleKeydown={handleKeydown}
-    />
+    <!-- Meters Panel with Scrolling -->
+    <div class="meters-wrapper">
+        <MetersPanel
+            onReplenish={replenish}
+            onHandleKeydown={handleKeydown}
+        />
+    </div>
 </div>
 
 <style>
+    .game-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+    }
     .meters-wrapper {
         flex: 1;
-        height: 100%;
-        overflow: hidden;
+        min-height: 0; /* Prevent flex item from overflowing its container */
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
     }
