@@ -395,7 +395,18 @@
 </div>
 
 <!-- Meters Panel with Scrolling -->
-<MetersPanel 
-    onReplenish={replenish}
-    onHandleKeydown={handleKeydown}
-/>
+<div class="meters-wrapper">
+    <MetersPanel 
+        onReplenish={replenish}
+        onHandleKeydown={handleKeydown}
+    />
+</div>
+
+<style>
+    .meters-wrapper {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+</style>

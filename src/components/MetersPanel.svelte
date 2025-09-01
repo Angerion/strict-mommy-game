@@ -51,23 +51,21 @@
 <style>
     .meters-container {
         width: 100%;
-        margin-top: 20px;
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
     .meters-scroll {
-        /* Allow scrolling when more than 5 meters on mobile */
-        max-height: calc(5 * 80px); /* Approximate height for 5 meters */
+        /* Allow scrolling when content overflows */
+        flex: 1;
         overflow-y: auto;
-        padding-right: 5px; /* Space for scrollbar */
+        overflow-x: hidden;
+        padding: 20px 5px 0 0; /* Top padding moved here, right padding for scrollbar */
     }
 
-    /* On larger screens, don't restrict height */
-    @media (min-height: 800px) {
-        .meters-scroll {
-            max-height: none;
-            overflow-y: visible;
-        }
-    }
+    /* Remove the height restriction on larger screens since we now use flex */
 
     .meter {
         display: flex;
