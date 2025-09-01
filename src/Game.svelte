@@ -28,19 +28,19 @@
     // Function to apply audio settings to sound effects
     function applyAudioSettings() {
         if (!$audioSettings) return;
-        
-        const soundVolume = $audioSettings.muteSounds ? 0 : 
+
+        const soundVolume = $audioSettings.muteSounds ? 0 :
             $audioSettings.masterVolume * $audioSettings.soundEffectsVolume;
-        
+
         replenishSound.volume = soundVolume;
         doorbellSound.volume = soundVolume;
         reviveSound.volume = soundVolume;
         clockSound.volume = soundVolume;
         rustleSound.volume = soundVolume;
-        
+
         // Also update chase music volume if it exists
         if (chaseMusic) {
-            const musicVolume = $audioSettings.muteMusic ? 0 : 
+            const musicVolume = $audioSettings.muteMusic ? 0 :
                 $audioSettings.masterVolume * $audioSettings.musicVolume;
             chaseMusic.volume = musicVolume;
         }
@@ -164,12 +164,12 @@
         const trackNumber = Math.floor(Math.random() * 5) + 1;
         chaseMusic = new Audio(`/sounds/zombiechase${trackNumber}.mp3`);
         chaseMusic.loop = true;
-        
+
         // Apply audio settings to chase music
-        const musicVolume = $audioSettings.muteMusic ? 0 : 
+        const musicVolume = $audioSettings.muteMusic ? 0 :
             $audioSettings.masterVolume * $audioSettings.musicVolume;
         chaseMusic.volume = musicVolume;
-        
+
         chaseMusic.play();
 
         encounterTimeout = setTimeout(dropAggro, 20000);
@@ -192,7 +192,7 @@
                 replenishSound.play();
             }
             // If meter has consumables enabled but none are left, do nothing (no sound/effect)
-            
+
             return currentMeters;
         });
     }
@@ -219,7 +219,7 @@
         const timeBefore = actualCurrentRemainingTime; // Log the correct current time
         const timeToReduce = timeBefore * rustlePercent;
         const absoluteSecondsModifier = ($settings.rustleAbsoluteSecondsModifier || 0) * 1000; // Convert to milliseconds
-        
+
         // New formula: TIMER - (percentage reduction) - absolute seconds modifier
         const newRemainingTime = timeBefore - timeToReduce - absoluteSecondsModifier;
 
@@ -364,6 +364,13 @@
 
 {#if $gameWon}
 <div class="win-overlay">
+      <!-- Game Time Clock at Top -->
+    <div class="game-clock">
+        <div class="clock-frame">
+            <div class="clock-hour">{displayHour.hour}</div>
+            <div class="clock-period">{displayHour.period}</div>
+        </div>
+    </div>
     <div class="win-message">
         <h1>You Survived!</h1>
         <p>Congratulations!</p>
@@ -374,19 +381,19 @@
 
 <!-- Three Column Layout -->
 <div class="game-layout">
-    <LeftColumn 
+    <LeftColumn
         onStartGame={startGame}
         onPauseGame={pauseGame}
         onRustle={rustle}
     />
-    
-    <CenterColumn 
+
+    <CenterColumn
         displayHour={$displayHour}
         formattedTime={formattedTime}
         currentMilliseconds={currentMilliseconds}
     />
-    
-    <RightColumn 
+
+    <RightColumn
         onStartBossEncounter={startBossEncounter}
         onDownPlayer={downPlayer}
         onStartRevive={startRevive}
@@ -396,7 +403,7 @@
 
 <!-- Meters Panel with Scrolling -->
 <div class="meters-wrapper">
-    <MetersPanel 
+    <MetersPanel
         onReplenish={replenish}
         onHandleKeydown={handleKeydown}
     />
@@ -405,6 +412,7 @@
 <style>
     .meters-wrapper {
         flex: 1;
+        height: 100%;
         overflow: hidden;
         display: flex;
         flex-direction: column;

@@ -59,7 +59,7 @@
 
 <style>
   .app-container {
-    height: 100vh;
+    height: 95vh;
     display: flex;
     flex-direction: column;
     max-width: 800px;
@@ -112,7 +112,7 @@
 
   .tab-content {
     padding: 15px;
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
     overflow: hidden;

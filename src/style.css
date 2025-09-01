@@ -2,7 +2,7 @@ body {
     font-family: sans-serif;
     background-color: #f0f0f0;
     color: #333;
-    margin: 0;
+    margin: 0px;
     padding: 20px;
     box-sizing: border-box;
 }
@@ -35,7 +35,7 @@ body {
         height: 150px; /* Fixed compact height on mobile */
         flex-shrink: 0;
     }
-    
+
     /* Make the layout components more compact on mobile */
     .game-layout > * {
         flex: 1;
@@ -285,13 +285,13 @@ button {
     .progress-label {
         font-size: 0.9em;
     }
-    
+
     .consumable-count {
         font-size: 0.75em;
         padding: 1px 4px;
         margin-left: 6px;
     }
-    
+
     progress {
         height: 42px;
     }
@@ -301,17 +301,17 @@ button {
     .progress-label {
         font-size: 0.8em;
     }
-    
+
     .consumable-count {
         font-size: 0.7em;
         padding: 1px 3px;
         margin-left: 4px;
     }
-    
+
     progress {
         height: 38px;
     }
-    
+
     .meter {
         margin-bottom: 12px;
     }
