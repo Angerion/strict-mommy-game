@@ -251,7 +251,7 @@
         label="Rustle Timer Modifier"
         emoji="⏱️"
         unit="s"
-        tooltip="Absolute seconds added back to timer after rustle percentage reduction."
+        tooltip="Additional seconds to reduce from timer after percentage reduction."
         color="#8D6E63"
       />
     </fieldset>

@@ -220,13 +220,13 @@
         const timeToReduce = timeBefore * rustlePercent;
         const absoluteSecondsModifier = ($settings.rustleAbsoluteSecondsModifier || 0) * 1000; // Convert to milliseconds
         
-        // New formula: TIMER - (percentage reduction) + absolute seconds modifier
-        const newRemainingTime = timeBefore - timeToReduce + absoluteSecondsModifier;
+        // New formula: TIMER - (percentage reduction) - absolute seconds modifier
+        const newRemainingTime = timeBefore - timeToReduce - absoluteSecondsModifier;
 
         console.log(`Rustle triggered!`);
         console.log(`Time before: ${(timeBefore / 1000).toFixed(2)}s`);
         console.log(`Time reduced by: ${(timeToReduce / 1000).toFixed(2)}s (${(rustlePercent * 100).toFixed(0)}%)`);
-        console.log(`Absolute seconds modifier: +${(absoluteSecondsModifier / 1000).toFixed(2)}s`);
+        console.log(`Additional time reduced by absolute modifier: ${(absoluteSecondsModifier / 1000).toFixed(2)}s`);
         console.log(`New time until doorbell: ${(newRemainingTime / 1000).toFixed(2)}s`);
 
         // Reschedule the doorbell with the new time
