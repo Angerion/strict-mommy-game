@@ -20,6 +20,7 @@ export const lives = writable(savedSettings?.settings?.startingLives ?? defaultS
 export const npcStatus = writable('');
 export const bossAwake = writable(false);
 export const bossEncounterActive = writable(false);
+export const gameHasBeenReset = writable(true); // Track if game has been reset to control play button visibility
 
 // Current difficulty preset - load from saved settings or default to 'normal'
 export const currentPreset = writable(savedSettings?.currentPreset ?? 'normal');
@@ -61,6 +62,7 @@ export function resetToDefaults() {
   meters.set([...defaultMeters]);
   audioSettings.set({...defaultAudioSettings});
   lives.set(defaultSettings.startingLives);
+  gameHasBeenReset.set(true); // Allow play button to be shown
   
   // Save the reset settings
   saveCurrentSettings();
@@ -73,6 +75,7 @@ export function applyPreset(presetKey) {
   settings.set({...config.settings});
   meters.set([...config.meters]);
   lives.set(config.settings.startingLives);
+  gameHasBeenReset.set(true); // Allow play button to be shown
   
   // Save settings after applying preset
   saveCurrentSettings();

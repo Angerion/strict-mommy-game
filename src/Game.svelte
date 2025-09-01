@@ -1,7 +1,13 @@
 <script>
     import { onMount } from 'svelte';
     import { derived } from 'svelte/store';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, audioSettings } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, audioSettings, gameHasBeenReset } from './stores.js';
+    import LeftColumn from './components/LeftColumn.svelte';
+    import CenterColumn from './components/CenterColumn.svelte';
+    import RightColumn from './components/RightColumn.svelte';
+    import MetersPanel from './components/MetersPanel.svelte';
+
+    export let isPausedFromAdmin = false;
 
     let gameLoop;
     let millisecondLoop;
@@ -212,16 +218,20 @@
 
         const timeBefore = actualCurrentRemainingTime; // Log the correct current time
         const timeToReduce = timeBefore * rustlePercent;
-        const newRemainingTime = timeBefore - timeToReduce;
+        const absoluteSecondsModifier = ($settings.rustleAbsoluteSecondsModifier || 0) * 1000; // Convert to milliseconds
+        
+        // New formula: TIMER - (percentage reduction) - absolute seconds modifier
+        const newRemainingTime = timeBefore - timeToReduce - absoluteSecondsModifier;
 
         console.log(`Rustle triggered!`);
         console.log(`Time before: ${(timeBefore / 1000).toFixed(2)}s`);
         console.log(`Time reduced by: ${(timeToReduce / 1000).toFixed(2)}s (${(rustlePercent * 100).toFixed(0)}%)`);
+        console.log(`Additional time reduced by absolute modifier: ${(absoluteSecondsModifier / 1000).toFixed(2)}s`);
         console.log(`New time until doorbell: ${(newRemainingTime / 1000).toFixed(2)}s`);
 
-        // Reschedule the doorbell with the new, shorter time
+        // Reschedule the doorbell with the new time
         clearTimeout(doorbellTimeout);
-        doorbellRemainingTime = newRemainingTime; // This is now the new total duration
+        doorbellRemainingTime = Math.max(newRemainingTime, 0); // Ensure we don't have negative time
         doorbellStartTime = Date.now(); // Reset the start time for the new timer
         doorbellTimeout = setTimeout(triggerDoorbell, doorbellRemainingTime);
     }
@@ -229,6 +239,7 @@
     function startGame() {
         if ($isDown || $isReviving || $gameWon) return;
         gameRunning.set(true);
+        gameHasBeenReset.set(false); // Hide play button until next reset
     }
 
     function pauseGame() {
@@ -268,6 +279,7 @@
         isReviving.set(false);
         bossAwake.set(false);
         bossEncounterActive.set(false);
+        gameHasBeenReset.set(true); // Allow play button to be shown again
         gameStartTime = 0;
         currentMilliseconds = 0;
         if (chaseMusic) {
@@ -360,90 +372,41 @@
 </div>
 {/if}
 
-<div class="game-controls">
-    <div class="left-controls">
-        <button id="play-pause-btn" class:paused={!$gameRunning} on:click={$gameRunning ? pauseGame : startGame} disabled={$isDown || $isReviving || $gameWon}>
-            <i class="fas fa-{$gameRunning ? 'pause' : 'play'}"></i>
-        </button>
-        {#if $gameRunning && !$bossAwake && !$bossEncounterActive}
-            <button id="rustle-btn" on:click={rustle}>
-                <i class="fas fa-wind"></i>
-            </button>
-        {/if}
-    </div>
+<!-- Three Column Layout -->
+<div class="game-layout">
+    <LeftColumn 
+        onStartGame={startGame}
+        onPauseGame={pauseGame}
+        onRustle={rustle}
+    />
     
-    <div class="game-stats">
-        <div id="time-elapsed">Time: <span class="fixed-width-time">{formattedTime}</span></div>
-        <div id="lives-container">
-            {#each Array($lives) as _}
-                <i class="fas fa-heart"></i>
-            {/each}
-        </div>
-        <div id="npc-status">{$npcStatus}</div>
-    </div>
+    <CenterColumn 
+        displayHour={$displayHour}
+        formattedTime={formattedTime}
+        currentMilliseconds={currentMilliseconds}
+    />
     
-    <div class="right-controls">
-        {#if $bossAwake && !$bossEncounterActive}
-            <button id="damage-btn" class="start-encounter" on:click={startBossEncounter} disabled={$gameWon}>
-                <i class="fas fa-khanda"></i>
-            </button>
-        {:else if $bossEncounterActive}
-            <div class="encounter-buttons">
-                <button id="damage-btn" class:reviving={$isDown} on:click={$isDown ? startRevive : downPlayer} disabled={$isReviving || $gameWon}>
-                    <i class="fas fa-{$isDown ? 'dove' : 'skull'}"></i>
-                </button>
-                <button id="drop-aggro-btn" on:click={dropAggro} disabled={$gameWon}>
-                    <i class="fas fa-shield-alt"></i>
-                </button>
-            </div>
-        {/if}
-    </div>
+    <RightColumn 
+        onStartBossEncounter={startBossEncounter}
+        onDownPlayer={downPlayer}
+        onStartRevive={startRevive}
+        onDropAggro={dropAggro}
+    />
 </div>
 
-<div class="in-game-clock">
-    <div class="clock-frame">
-        <div class="clock-hour">{$displayHour.hour}</div>
-        <div class="clock-period">{$displayHour.period}</div>
-    </div>
+<!-- Meters Panel with Scrolling -->
+<div class="meters-wrapper">
+    <MetersPanel 
+        onReplenish={replenish}
+        onHandleKeydown={handleKeydown}
+    />
 </div>
 
-<div class="meters">
-    {#each $meters as meter (meter.id)}
-    <div class="meter" role="button" tabindex="0" on:click={() => replenish(meter.id)} on:keydown={(e) => handleKeydown(e, meter.id)}>
-        <div class="meter-icon">
-            {#if meter.consumable.enabled && meter.consumable.icon}
-                {meter.consumable.icon}
-            {:else}
-                {#if meter.id === 'oxygen'}
-                    🫁
-                {:else if meter.id === 'hunger'}
-                    🍎
-                {:else if meter.id === 'thirst'}
-                    💧
-                {:else if meter.id === 'energy'}
-                    ⚡
-                {:else if meter.id === 'sanity'}
-                    🧠
-                {:else}
-                    ⭕
-                {/if}
-            {/if}
-        </div>
-        <div class="progress-wrapper">
-            <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
-            <span class="progress-label">
-                {meter.name}
-                {#if meter.consumable.enabled}
-                    <span class="consumable-count">
-                        {meter.consumable.icon} {meter.consumable.count}
-                    </span>
-                {/if}
-            </span>
-        </div>
-    </div>
-    {/each}
-</div>
-
-{#if $npcStatus}
-    <div id="npc-status">{$npcStatus}</div>
-{/if}
+<style>
+    .meters-wrapper {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
