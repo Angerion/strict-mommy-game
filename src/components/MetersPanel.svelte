@@ -24,7 +24,11 @@
                         </span>
                     {/if}
                 </div>
-                <progress style="--progress-color: {meter.color}" value={meter.value} max="100"></progress>
+                <progress 
+                    style="--progress-color: {meter.consumable.enabled && meter.consumable.count === 0 ? 'linear-gradient(to right, #808080, #a0a0a0)' : meter.color}" 
+                    value={meter.value} 
+                    max="100">
+                </progress>
             </div>
         </div>
         {/each}
