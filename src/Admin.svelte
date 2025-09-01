@@ -1,5 +1,5 @@
 <script>
-  import { settings, lives, gameTime, gameRunning, meters, currentPreset, applyPreset, audioSettings, resetToDefaults, saveCurrentSettings } from "./stores.js";
+  import { settings, lives, gameTime, gameRunning, meters, currentPreset, applyPreset, audioSettings, resetToDefaults, saveCurrentSettings, gameHasBeenReset } from "./stores.js";
   import { gamePresets, availablePresets, defaultSettings, defaultMeters, defaultAudioSettings } from "./gameConfig.js";
   import Slider from "./Slider.svelte";
 
@@ -78,6 +78,7 @@
     if ($gameRunning) {
       $gameRunning = false;
     }
+    $gameHasBeenReset = true; // Allow play button to be shown
     // Save settings after applying
     saveCurrentSettings();
     alert("Settings applied and game reset!");
@@ -239,6 +240,18 @@
         emoji="🍃"
         unit="%"
         tooltip="Maximum percentage chance for rustle events."
+        color="#8D6E63"
+      />
+
+      <Slider
+        bind:value={$settings.rustleAbsoluteSecondsModifier}
+        min={0}
+        max={30}
+        step={1}
+        label="Rustle Timer Modifier"
+        emoji="⏱️"
+        unit="s"
+        tooltip="Absolute seconds added back to timer after rustle percentage reduction."
         color="#8D6E63"
       />
     </fieldset>

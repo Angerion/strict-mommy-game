@@ -1,5 +1,5 @@
 <script>
-    import { gameRunning, bossAwake, bossEncounterActive, isDown, isReviving, gameWon } from '../stores.js';
+    import { gameRunning, bossAwake, bossEncounterActive, isDown, isReviving, gameWon, gameHasBeenReset } from '../stores.js';
     
     export let onStartGame;
     export let onPauseGame;
@@ -8,7 +8,7 @@
 
 <div class="left-column">
     <div class="control-buttons">
-        {#if !$gameRunning}
+        {#if !$gameRunning && $gameHasBeenReset}
             <button id="play-btn" class="control-btn play-btn" on:click={onStartGame} disabled={$isDown || $isReviving || $gameWon}>
                 <i class="fas fa-play"></i>
             </button>

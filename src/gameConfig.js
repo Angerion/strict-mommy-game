@@ -87,7 +87,8 @@ export const defaultSettings = {
   doorbellMaxTime: 100,
   gameLengthMinutes: 15,
   rustleMinPercent: 25,
-  rustleMaxPercent: 50
+  rustleMaxPercent: 50,
+  rustleAbsoluteSecondsModifier: 5
 };
 
 // Default audio settings
@@ -110,7 +111,8 @@ export const gamePresets = {
       doorbellMaxTime: 130,
       gameLengthMinutes: 12,
       rustleMinPercent: 15,
-      rustleMaxPercent: 30
+      rustleMaxPercent: 30,
+      rustleAbsoluteSecondsModifier: 5
     },
     meterAdjustments: {
       rateMultiplier: 0.805,  // 30% slower decay
@@ -137,7 +139,8 @@ export const gamePresets = {
       doorbellMaxTime: 80,
       gameLengthMinutes: 18,
       rustleMinPercent: 35,
-      rustleMaxPercent: 60
+      rustleMaxPercent: 60,
+      rustleAbsoluteSecondsModifier: 5
     },
     meterAdjustments: {
       rateMultiplier: 1.61,  // 40% faster decay

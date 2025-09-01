@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { derived } from 'svelte/store';
-    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, audioSettings } from './stores.js';
+    import { gameTime, gameRunning, lives, meters, settings, npcStatus, isDown, isReviving, bossAwake, bossEncounterActive, gameWon, audioSettings, gameHasBeenReset } from './stores.js';
     import LeftColumn from './components/LeftColumn.svelte';
     import CenterColumn from './components/CenterColumn.svelte';
     import RightColumn from './components/RightColumn.svelte';
@@ -218,16 +218,20 @@
 
         const timeBefore = actualCurrentRemainingTime; // Log the correct current time
         const timeToReduce = timeBefore * rustlePercent;
-        const newRemainingTime = timeBefore - timeToReduce;
+        const absoluteSecondsModifier = ($settings.rustleAbsoluteSecondsModifier || 0) * 1000; // Convert to milliseconds
+        
+        // New formula: TIMER - (percentage reduction) + absolute seconds modifier
+        const newRemainingTime = timeBefore - timeToReduce + absoluteSecondsModifier;
 
         console.log(`Rustle triggered!`);
         console.log(`Time before: ${(timeBefore / 1000).toFixed(2)}s`);
         console.log(`Time reduced by: ${(timeToReduce / 1000).toFixed(2)}s (${(rustlePercent * 100).toFixed(0)}%)`);
+        console.log(`Absolute seconds modifier: +${(absoluteSecondsModifier / 1000).toFixed(2)}s`);
         console.log(`New time until doorbell: ${(newRemainingTime / 1000).toFixed(2)}s`);
 
-        // Reschedule the doorbell with the new, shorter time
+        // Reschedule the doorbell with the new time
         clearTimeout(doorbellTimeout);
-        doorbellRemainingTime = newRemainingTime; // This is now the new total duration
+        doorbellRemainingTime = Math.max(newRemainingTime, 0); // Ensure we don't have negative time
         doorbellStartTime = Date.now(); // Reset the start time for the new timer
         doorbellTimeout = setTimeout(triggerDoorbell, doorbellRemainingTime);
     }
@@ -235,6 +239,7 @@
     function startGame() {
         if ($isDown || $isReviving || $gameWon) return;
         gameRunning.set(true);
+        gameHasBeenReset.set(false); // Hide play button until next reset
     }
 
     function pauseGame() {
@@ -274,6 +279,7 @@
         isReviving.set(false);
         bossAwake.set(false);
         bossEncounterActive.set(false);
+        gameHasBeenReset.set(true); // Allow play button to be shown again
         gameStartTime = 0;
         currentMilliseconds = 0;
         if (chaseMusic) {
