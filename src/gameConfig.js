@@ -11,6 +11,7 @@ export const defaultMeters = [
     rate: 0.8,
     replenish: 65,
     color: "linear-gradient(to right, #FF9800, #FFB74D)",
+    holdToRefill: false,
     consumable: {
       enabled: false,
       name: "",
@@ -27,6 +28,7 @@ export const defaultMeters = [
     rate: 1,
     replenish: 45,
     color: "linear-gradient(to right, #2196F3, #03A9F4)",
+    holdToRefill: false,
     consumable: {
       enabled: false,
       name: "",
@@ -43,6 +45,7 @@ export const defaultMeters = [
     rate: 0.4,
     replenish: 100,
     color: "linear-gradient(to right, #795548, #A1887F)",
+    holdToRefill: false,
     consumable: {
       enabled: false,
       name: "",
@@ -59,6 +62,7 @@ export const defaultMeters = [
     rate: 0.3,
     replenish: 100,
     color: "linear-gradient(to right, #B0C4DE, #87CEEB)",
+    holdToRefill: false,
     consumable: {
       enabled: true,
       name: "Oxygen Tank",
@@ -75,6 +79,7 @@ export const defaultMeters = [
     rate: 0.5,
     replenish: 50,
     color: "linear-gradient(to right, #f0ff22ff, #a0ab0dff)",
+    holdToRefill: false,
     consumable: {
       enabled: false,
       name: "",

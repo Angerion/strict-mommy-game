@@ -1,14 +1,25 @@
 <script>
     import { meters } from '../stores.js';
 
-    export let onReplenish;
+    export let onStartRefill;
+    export let onStopRefill;
     export let onHandleKeydown;
+    export let onHandleKeyup;
 </script>
 
 <div class="meters-container">
     <div class="meters-scroll">
         {#each $meters as meter (meter.id)}
-        <div class="meter" role="button" tabindex="0" on:click={() => onReplenish(meter.id)} on:keydown={(e) => onHandleKeydown(e, meter.id)}>
+        <div
+            class="meter"
+            role="button"
+            tabindex="0"
+            on:mousedown={() => onStartRefill(meter.id)}
+            on:mouseup={onStopRefill}
+            on:mouseleave={onStopRefill}
+            on:keydown={(e) => onHandleKeydown(e, meter.id)}
+            on:keyup={(e) => onHandleKeyup(e, meter.id)}
+        >
             <div class="meter-icon">{meter.icon}</div>
             <div class="progress-wrapper">
                 <div class="progress-label-container">
@@ -24,9 +35,9 @@
                         </span>
                     {/if}
                 </div>
-                <progress 
-                    style="--progress-color: {meter.consumable.enabled && meter.consumable.count === 0 ? 'linear-gradient(to right, #808080, #a0a0a0)' : meter.color}" 
-                    value={meter.value} 
+                <progress
+                    style="--progress-color: {meter.consumable.enabled && meter.consumable.count === 0 ? 'linear-gradient(to right, #808080, #a0a0a0)' : meter.color}"
+                    value={meter.value}
                     max="100">
                 </progress>
             </div>

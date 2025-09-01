@@ -15,6 +15,7 @@
   let newMeterRate = 1;
   let newMeterReplenish = 50;
   let newMeterIcon = '⭕';
+  let newMeterHoldToRefill = false;
   let newMeterColor = 'linear-gradient(to right, #4CAF50, #8BC34A)'; // Default to Green
   const colorOptions = [
       { name: 'Green', value: 'linear-gradient(to right, #4CAF50, #8BC34A)' },
@@ -42,6 +43,7 @@
       rate: newMeterRate,
       replenish: newMeterReplenish,
       color: newMeterColor,
+      holdToRefill: newMeterHoldToRefill,
       consumable: {
         enabled: false,
         name: "",
@@ -55,6 +57,7 @@
     newMeterRate = 1;
     newMeterReplenish = 50;
     newMeterIcon = '⭕';
+    newMeterHoldToRefill = false;
   }
 
   function toggleGamePause() {
@@ -364,6 +367,14 @@
               showMinMax={false}
             />
 
+            <div class="setting">
+                <label class="checkbox-label">
+                  <input type="checkbox" bind:checked={meter.holdToRefill} />
+                  <span class="checkmark"></span>
+                  Hold to Refill
+                </label>
+            </div>
+
             <!-- Consumable Configuration -->
             <div class="consumable-config">
               <h5 class="consumable-title">🎒 Consumable Configuration</h5>
@@ -451,6 +462,14 @@
       <div class="setting">
         <label for="new-meter-icon">🎭 Icon (emoji):</label>
         <input type="text" id="new-meter-icon" bind:value={newMeterIcon} maxlength="4" />
+      </div>
+
+      <div class="setting">
+        <label class="checkbox-label">
+          <input type="checkbox" bind:checked={newMeterHoldToRefill} />
+          <span class="checkmark"></span>
+          Hold to Refill
+        </label>
       </div>
 
       <Slider

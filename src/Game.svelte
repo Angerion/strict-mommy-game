@@ -19,7 +19,10 @@
     let chaseMusic; // Will hold the current chase music audio object
     let gameStartTime = 0;
     let currentMilliseconds = 0;
+    let refillInterval = null;
+    let refillingMeterId = null;
     const replenishSound = new Audio('/sounds/replenish.mp3');
+    const refillHoldSound = new Audio('/sounds/refill-hold.mp3');
     const doorbellSound = new Audio('/sounds/doorbell.mp3');
     const reviveSound = new Audio('/sounds/revive.mp3');
     const clockSound = new Audio('/sounds/grandfather_clock.mp3');
@@ -33,6 +36,7 @@
             $audioSettings.masterVolume * $audioSettings.soundEffectsVolume;
 
         replenishSound.volume = soundVolume;
+        refillHoldSound.volume = soundVolume;
         doorbellSound.volume = soundVolume;
         reviveSound.volume = soundVolume;
         clockSound.volume = soundVolume;
@@ -175,7 +179,54 @@
         encounterTimeout = setTimeout(dropAggro, 20000);
     }
 
+    function startRefill(meterId) {
+        const meter = $meters.find(m => m.id === meterId);
+        if (!meter) return;
+
+        // If not hold-to-refill, use the old replenish logic
+        if (!meter.holdToRefill) {
+            replenish(meterId);
+            return;
+        }
+
+        // Logic for hold-to-refill
+        if (refillingMeterId) return; // Already refilling another meter
+
+        refillingMeterId = meterId;
+        refillHoldSound.loop = true;
+        refillHoldSound.play();
+
+        // The formula: replenish amount over 5 seconds, ticked every 0.1s
+        const ticksPerFiveSeconds = 50; // 5s / 0.1s
+        const refillAmountPerTick = meter.replenish / ticksPerFiveSeconds;
+
+        refillInterval = setInterval(() => {
+            meters.update(currentMeters => {
+                const m = currentMeters.find(m => m.id === meterId);
+                if (m) {
+                    m.value = Math.min(100, m.value + refillAmountPerTick);
+                    if (m.value >= 100) {
+                        stopRefill();
+                    }
+                }
+                return currentMeters;
+            });
+        }, 100);
+    }
+
+    function stopRefill() {
+        if (!refillingMeterId) return;
+
+        clearInterval(refillInterval);
+        refillInterval = null;
+        refillingMeterId = null;
+
+        refillHoldSound.pause();
+        refillHoldSound.currentTime = 0;
+    }
+
     function replenish(meterId) {
+        // This function is now only for click-to-replenish and consumables
         meters.update(currentMeters => {
             const meter = currentMeters.find(m => m.id === meterId);
             if (!meter) return currentMeters;
@@ -186,12 +237,13 @@
                 meter.value = 100;
                 meter.consumable.count--;
                 replenishSound.play();
-            } else if (!meter.consumable.enabled) {
-                // Use normal replenish for meters without consumables
+            } else if (!meter.consumable.enabled && !meter.holdToRefill) {
+                // Use normal replenish for meters without consumables and not hold-to-refill
                 meter.value = Math.min(100, meter.value + meter.replenish);
                 replenishSound.play();
             }
-            // If meter has consumables enabled but none are left, do nothing (no sound/effect)
+            // If meter has consumables enabled but none are left, do nothing
+            // If meter is holdToRefill, do nothing on a single click
 
             return currentMeters;
         });
@@ -199,7 +251,21 @@
 
     function handleKeydown(e, meterId) {
         if (e.key === 'Enter' || e.key === ' ') {
-            replenish(meterId);
+            const meter = $meters.find(m => m.id === meterId);
+            if (meter && meter.holdToRefill) {
+                startRefill(meterId);
+            } else {
+                replenish(meterId);
+            }
+        }
+    }
+
+    function handleKeyup(e, meterId) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            const meter = $meters.find(m => m.id === meterId);
+            if (meter && meter.holdToRefill) {
+                stopRefill();
+            }
         }
     }
 
@@ -289,6 +355,10 @@
         clearTimeout(encounterTimeout);
         clearTimeout(doorbellTimeout);
         clearInterval(millisecondLoop);
+        clearInterval(refillInterval); // Also clear refill interval on reset
+        refillHoldSound.pause();
+        refillHoldSound.currentTime = 0;
+        refillingMeterId = null;
         doorbellRemainingTime = null;
         meters.update(currentMeters => {
             return currentMeters.map(meter => ({ ...meter, value: 100 }));
@@ -329,6 +399,11 @@
                             return currentMeters;
                         }
                         return currentMeters.map(meter => {
+                            // Do not decay the meter that is currently being refilled
+                            if (meter.id === refillingMeterId) {
+                                return meter;
+                            }
+
                             const newValue = Math.max(0, meter.value - meter.rate);
                             if (newValue === 0) {
                                 lives.update(l => Math.max(0, l - 1));
@@ -358,6 +433,7 @@
             clearInterval(millisecondLoop);
             clearTimeout(doorbellTimeout);
             clearTimeout(encounterTimeout);
+            clearInterval(refillInterval);
         };
     });
 </script>
@@ -404,8 +480,10 @@
     <!-- Meters Panel with Scrolling -->
     <div class="meters-wrapper">
         <MetersPanel
-            onReplenish={replenish}
+            onStartRefill={startRefill}
+            onStopRefill={stopRefill}
             onHandleKeydown={handleKeydown}
+            onHandleKeyup={handleKeyup}
         />
     </div>
 </div>
