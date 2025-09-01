@@ -6,6 +6,7 @@ export const defaultMeters = [
   {
     id: "hunger",
     name: "Hunger",
+    icon: "🍔",
     value: 100,
     rate: 0.8,
     replenish: 65,
@@ -15,12 +16,13 @@ export const defaultMeters = [
       name: "",
       icon: "",
       count: 0,
-      restoreAmount: 100
-    }
+      restoreAmount: 100,
+    },
   },
   {
     id: "thirst",
-    name: "Thirst", 
+    name: "Thirst",
+    icon: "💧",
     value: 100,
     rate: 1,
     replenish: 45,
@@ -30,12 +32,13 @@ export const defaultMeters = [
       name: "",
       icon: "",
       count: 0,
-      restoreAmount: 100
-    }
+      restoreAmount: 100,
+    },
   },
   {
     id: "cleanliness",
     name: "Cleanliness",
+    icon: "🧼",
     value: 100,
     rate: 0.4,
     replenish: 100,
@@ -45,12 +48,13 @@ export const defaultMeters = [
       name: "",
       icon: "",
       count: 0,
-      restoreAmount: 100
-    }
+      restoreAmount: 100,
+    },
   },
   {
     id: "oxygen",
     name: "Oxygen",
+    icon: "🫁",
     value: 100,
     rate: 0.3,
     replenish: 100,
@@ -58,14 +62,15 @@ export const defaultMeters = [
     consumable: {
       enabled: true,
       name: "Oxygen Tank",
-      icon: "🫁",
+      icon: "🛢️",
       count: 4,
-      restoreAmount: 100
-    }
+      restoreAmount: 100,
+    },
   },
   {
     id: "energy",
     name: "Energy",
+    icon: "⚡️",
     value: 100,
     rate: 0.5,
     replenish: 50,
@@ -75,8 +80,8 @@ export const defaultMeters = [
       name: "",
       icon: "",
       count: 0,
-      restoreAmount: 100
-    }
+      restoreAmount: 100,
+    },
   },
 ];
 
@@ -121,7 +126,7 @@ export const gamePresets = {
     oxygenConsumableCount: 5
   },
   normal: {
-    name: "Normal Mode", 
+    name: "Normal Mode",
     description: "Balanced difficulty for standard gameplay",
     settings: defaultSettings,
     meterAdjustments: {
@@ -132,7 +137,7 @@ export const gamePresets = {
   },
   hard: {
     name: "Hard Mode",
-    description: "Challenging settings for experienced players", 
+    description: "Challenging settings for experienced players",
     settings: {
       startingLives: 2,
       doorbellMinTime: 55,
@@ -154,9 +159,9 @@ export const gamePresets = {
 export function applyPresetToMeters(meters, presetKey) {
   const preset = gamePresets[presetKey];
   if (!preset) return meters;
-  
+
   const { rateMultiplier, replenishMultiplier } = preset.meterAdjustments;
-  
+
   return meters.map(meter => ({
     ...meter,
     rate: Math.round(meter.rate * rateMultiplier * 100) / 100,
@@ -171,11 +176,11 @@ export function applyPresetToMeters(meters, presetKey) {
 // Get preset configuration
 export function getPresetConfig(presetKey) {
   const preset = gamePresets[presetKey];
-  if (!preset) return { 
-    settings: defaultSettings, 
+  if (!preset) return {
+    settings: defaultSettings,
     meters: defaultMeters
   };
-  
+
   return {
     settings: preset.settings,
     meters: applyPresetToMeters(defaultMeters, presetKey)

@@ -1,12 +1,8 @@
 <script>
     import { lives, gameTime, npcStatus } from '../stores.js';
-    
+
     export let displayHour;
     export let formattedTime;
-    export let currentMilliseconds;
-    
-    // Format time with milliseconds (MM:SS:MS)
-    $: formattedTimeWithMs = formattedTime + ':' + Math.floor(currentMilliseconds / 10).toString().padStart(2, '0');
 </script>
 
 <div class="center-column">
@@ -17,20 +13,20 @@
             <div class="clock-period">{displayHour.period}</div>
         </div>
     </div>
-    
+
     <!-- Lives Display (up to 2 rows of 5 hearts each) -->
     <div class="lives-section">
         {#if $lives && $lives > 0}
             {@const livesArray = Array($lives).fill(0)}
             {@const firstRow = livesArray.slice(0, 5)}
             {@const secondRow = livesArray.slice(5, 10)}
-            
+
             <div class="lives-row">
                 {#each firstRow as _}
                     <span class="heart-icon">❤️</span>
                 {/each}
             </div>
-            
+
             {#if secondRow.length > 0}
                 <div class="lives-row">
                     {#each secondRow as _}
@@ -40,15 +36,15 @@
             {/if}
         {/if}
     </div>
-    
+
     <!-- Timer with milliseconds -->
     <div class="timer-section">
         <div class="timer-display">
             <span class="timer-label">Time:</span>
-            <span class="timer-value">{formattedTimeWithMs}</span>
+            <span class="timer-value">{formattedTime}</span>
         </div>
     </div>
-    
+
     <!-- Game State Messages -->
     <div class="status-section">
         {#if $npcStatus}

@@ -1,6 +1,6 @@
 <script>
     import { meters } from '../stores.js';
-    
+
     export let onReplenish;
     export let onHandleKeydown;
 </script>
@@ -9,30 +9,13 @@
     <div class="meters-scroll">
         {#each $meters as meter (meter.id)}
         <div class="meter" role="button" tabindex="0" on:click={() => onReplenish(meter.id)} on:keydown={(e) => onHandleKeydown(e, meter.id)}>
-            <div class="meter-icon">
-                {#if meter.consumable.enabled && meter.consumable.icon}
-                    {meter.consumable.icon}
-                {:else}
-                    {#if meter.id === 'oxygen'}
-                        🫁
-                    {:else if meter.id === 'hunger'}
-                        🍎
-                    {:else if meter.id === 'thirst'}
-                        💧
-                    {:else if meter.id === 'energy'}
-                        ⚡
-                    {:else if meter.id === 'sanity'}
-                        🧠
-                    {:else}
-                        ⭕
-                    {/if}
-                {/if}
-            </div>
+            <div class="meter-icon">{meter.icon}</div>
             <div class="progress-wrapper">
                 <div class="progress-label-container">
                     <span class="progress-label-centered">
                         {meter.name}
                     </span>
+
                     {#if meter.consumable.enabled}
                         <span class="consumable-icons">
                             {#each Array(meter.consumable.count).fill(0) as _}
@@ -107,28 +90,47 @@
         position: relative;
         width: 100%;
         margin-bottom: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .progress-label-centered {
         font-size: 14px;
         font-weight: 600;
         color: #495057;
-        text-align: center;
+    }
+
+    .progress-value-container {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+
+    .progress-value {
+        font-size: 12px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
     }
 
     .consumable-icons {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: 50%;
+        right: 5px;
+        transform: translateY(-50%);
         display: flex;
         gap: 2px;
-        align-items: center;
     }
 
     .consumable-icon {
         font-size: 12px;
-        display: inline-block;
         opacity: 0.9;
     }
 

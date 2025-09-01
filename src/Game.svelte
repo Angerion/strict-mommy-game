@@ -64,13 +64,13 @@
         return { hour: $inGameHour.toString().padStart(2, '0'), period: 'AM' };
     });
 
-    // Create formatted time display (MM:SS:MS format)
-    let formattedTime = '00:00:00';
+    // Create formatted time display ({MM}m {SS}s {MS}ms format)
+    let formattedTime = '00m 00s 00ms';
     $: {
         const minutes = Math.floor($gameTime / 60);
         const seconds = $gameTime % 60;
         const milliseconds = Math.floor(currentMilliseconds / 10); // Convert to centiseconds (0-99)
-        formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}:${milliseconds.toString().padStart(2, '0')}`;
+        formattedTime = `${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s ${milliseconds.toString().padStart(2, '0')}ms`;
     }
 
     let previousHour = 0;
@@ -391,7 +391,6 @@
         <CenterColumn
             displayHour={$displayHour}
             formattedTime={formattedTime}
-            currentMilliseconds={currentMilliseconds}
         />
 
         <RightColumn

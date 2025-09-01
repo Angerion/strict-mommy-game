@@ -14,6 +14,7 @@
   let newMeterName = '';
   let newMeterRate = 1;
   let newMeterReplenish = 50;
+  let newMeterIcon = '⭕';
   let newMeterColor = 'linear-gradient(to right, #4CAF50, #8BC34A)'; // Default to Green
   const colorOptions = [
       { name: 'Green', value: 'linear-gradient(to right, #4CAF50, #8BC34A)' },
@@ -36,6 +37,7 @@
     const newMeter = {
       id: newMeterName.toLowerCase().replace(/\s+/g, "-"),
       name: newMeterName,
+      icon: newMeterIcon,
       value: 100,
       rate: newMeterRate,
       replenish: newMeterReplenish,
@@ -52,6 +54,7 @@
     newMeterName = "";
     newMeterRate = 1;
     newMeterReplenish = 50;
+    newMeterIcon = '⭕';
   }
 
   function toggleGamePause() {
@@ -104,8 +107,8 @@
       <legend>🎮 Game Control</legend>
       <div class="game-control-section">
         <div class="pause-control">
-          <button 
-            class="pause-btn" 
+          <button
+            class="pause-btn"
             class:active={isPausedFromAdmin}
             on:click={toggleGamePause}
             disabled={!$gameRunning && !isPausedFromAdmin}
@@ -119,7 +122,7 @@
             {/if}
           </button>
         </div>
-        
+
         {#if isPausedFromAdmin}
           <div class="game-stats-display">
             <h4>Game Statistics</h4>
@@ -137,7 +140,7 @@
                 <span class="stat-value">{$meters.length}</span>
               </div>
             </div>
-            
+
             <div class="meters-status">
               <h5>Current Meter Values:</h5>
               {#each $meters as meter}
@@ -167,7 +170,7 @@
 
     <fieldset>
       <legend>⚙️ General Settings</legend>
-      
+
       <Slider
         bind:value={$settings.startingLives}
         min={1}
@@ -218,7 +221,7 @@
 
     <fieldset>
       <legend>🍃 Rustle Settings</legend>
-      
+
       <Slider
         bind:value={$settings.rustleMinPercent}
         min={5}
@@ -258,7 +261,7 @@
 
     <fieldset>
       <legend>🔊 Audio Settings</legend>
-      
+
       <Slider
         bind:value={$audioSettings.masterVolume}
         min={0}
@@ -322,7 +325,18 @@
               🗑️
             </button>
           </div>
-          
+
+          <div class="setting">
+            <label for="meter-icon-{meter.id}">🎭 Icon (emoji):</label>
+            <input
+              type="text"
+              id="meter-icon-{meter.id}"
+              bind:value={meter.icon}
+              placeholder="e.g., 🍔"
+              maxlength="4"
+            />
+          </div>
+
           <div class="meter-sliders">
             <Slider
               bind:value={meter.rate}
@@ -355,8 +369,8 @@
               <h5 class="consumable-title">🎒 Consumable Configuration</h5>
               <div class="setting">
                 <label class="checkbox-label">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     bind:checked={meter.consumable.enabled}
                     on:change={() => {
                       if (!meter.consumable.enabled) {
@@ -371,30 +385,30 @@
                   Enable Consumables
                 </label>
               </div>
-              
+
               {#if meter.consumable.enabled}
                 <div class="consumable-details">
                   <div class="setting">
                     <label for="consumable-name-{meter.id}">📝 Consumable Name:</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       id="consumable-name-{meter.id}"
                       bind:value={meter.consumable.name}
                       placeholder="e.g., Oxygen Tank"
                     />
                   </div>
-                  
+
                   <div class="setting">
                     <label for="consumable-icon-{meter.id}">🎭 Icon (emoji):</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       id="consumable-icon-{meter.id}"
                       bind:value={meter.consumable.icon}
                       placeholder="e.g., 🫁"
                       maxlength="4"
                     />
                   </div>
-                  
+
                   <Slider
                     bind:value={meter.consumable.count}
                     min={0}
@@ -406,7 +420,7 @@
                     color={meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/) ? meter.color.match(/#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3}/)[0] : '#4CAF50'}
                     showMinMax={false}
                   />
-                  
+
                   <Slider
                     bind:value={meter.consumable.restoreAmount}
                     min={50}
@@ -433,7 +447,12 @@
         <label for="new-meter-name">📝 Name:</label>
         <input type="text" id="new-meter-name" bind:value={newMeterName} />
       </div>
-      
+
+      <div class="setting">
+        <label for="new-meter-icon">🎭 Icon (emoji):</label>
+        <input type="text" id="new-meter-icon" bind:value={newMeterIcon} maxlength="4" />
+      </div>
+
       <Slider
         bind:value={newMeterRate}
         min={0.05}
@@ -611,7 +630,7 @@
     margin-top: 0.5rem;
     font-size: 0.9rem;
   }
-  
+
   .meter-setting {
     margin-bottom: 1.5rem;
     padding: 1rem;
@@ -637,7 +656,7 @@
     display: grid;
     gap: 0.5rem;
   }
-  
+
   .consumable-config {
     margin-top: 1rem;
     padding: 1rem;
@@ -645,20 +664,20 @@
     border-radius: 6px;
     border: 1px solid #e0e0e0;
   }
-  
+
   .consumable-title {
     margin: 0 0 1rem 0;
     font-size: 1em;
     font-weight: 600;
     color: #555;
   }
-  
+
   .consumable-details {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #ddd;
   }
-  
+
   .checkbox-label {
     display: flex;
     align-items: center;
@@ -666,16 +685,16 @@
     font-weight: 600;
     color: #333;
   }
-  
+
   .checkbox-label input[type="checkbox"] {
     margin-right: 0.5rem;
     transform: scale(1.2);
   }
-  
+
   .checkmark {
     margin-left: 0.25rem;
   }
-  
+
   .remove-btn {
     background: #f44336;
     color: white;
@@ -691,23 +710,23 @@
     justify-content: center;
     transition: all 0.2s ease;
   }
-  
+
   .remove-btn:hover {
     background: #d32f2f;
     transform: scale(1.1);
   }
-  
+
   .setting {
     margin-bottom: 1rem;
   }
-  
+
   .setting label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: #333;
   }
-  
+
   .setting input, .setting select {
     width: 100%;
     padding: 0.5rem;
@@ -837,7 +856,7 @@
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    box-shadow: 
+    box-shadow:
       0 3px 5px -1px rgba(0, 0, 0, 0.2),
       0 6px 10px 0 rgba(0, 0, 0, 0.14),
       0 1px 18px 0 rgba(0, 0, 0, 0.12);
@@ -848,7 +867,7 @@
 
   .fab-resume:hover {
     background: #45a049;
-    box-shadow: 
+    box-shadow:
       0 5px 5px -3px rgba(0, 0, 0, 0.2),
       0 8px 10px 1px rgba(0, 0, 0, 0.14),
       0 3px 14px 2px rgba(0, 0, 0, 0.12);
@@ -856,7 +875,7 @@
   }
 
   .fab-resume:active {
-    box-shadow: 
+    box-shadow:
       0 7px 8px -4px rgba(0, 0, 0, 0.2),
       0 12px 17px 2px rgba(0, 0, 0, 0.14),
       0 5px 22px 4px rgba(0, 0, 0, 0.12);
